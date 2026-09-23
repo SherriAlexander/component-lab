@@ -1,0 +1,20 @@
+# Dependencies & builds
+node_modules/
+dist/
+storybook-static/
+coverage/
+
+# Generated
+src/tokens.css
+
+# Local-only reference and notes (not public)
+original-codepen/
+docs/
+
+# OS / editor
+.DS_Store
+*.log
+.env*
+!.env.example
+
+*storybook.log

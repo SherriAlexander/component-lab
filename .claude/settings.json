@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e 'let d=\"\";process.stdin.on(\"data\",c=>d+=c).on(\"end\",()=>{const f=JSON.parse(d).tool_input?.file_path;if(f)process.stdout.write(f)})' | xargs -I{} npx --no-install prettier --write --ignore-unknown --log-level=silent {} || true"
+          }
+        ]
+      }
+    ]
+  }
+}
