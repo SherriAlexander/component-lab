@@ -6,6 +6,6 @@ export default {
     'storybook-static/**',
     'coverage/**',
     'original-codepen/**',
-    'src/tokens.css',
+    'src/tokens/tokens.css',
   ],
 };

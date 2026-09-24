@@ -10,14 +10,19 @@
     "node": ">=24"
   },
   "scripts": {
+    "tokens": "style-dictionary build --config style-dictionary.config.js",
+    "prestorybook": "npm run tokens",
     "storybook": "storybook dev -p 6006",
+    "prebuild-storybook": "npm run tokens",
     "build-storybook": "storybook build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . && stylelint \"src/**/*.css\" --allow-empty-input",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run --project=storybook --passWithNoTests",
-    "prepare": "lefthook install"
+    "pretest": "npm run tokens",
+    "test": "vitest run --passWithNoTests",
+    "test:wip": "WIP=1 vitest run",
+    "prepare": "lefthook install && npm run tokens"
   },
   "dependencies": {
     "react": "^19.3.0",
@@ -47,6 +52,7 @@
     "playwright": "^1.63.0",
     "prettier": "^3.9.9",
     "storybook": "^10.6.0",
+    "style-dictionary": "^5.5.5",
     "stylelint": "^17.15.0",
     "stylelint-config-standard": "^40.0.0",
     "typescript": "~6.0.3",

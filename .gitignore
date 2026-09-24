@@ -5,7 +5,8 @@ storybook-static/
 coverage/
 
 # Generated
-src/tokens.css
+src/tokens/tokens.css
+src/tokens/tokens.json
 
 # Local-only reference and notes (not public)
 original-codepen/

@@ -1,0 +1,76 @@
+{
+  "neutral": {
+    "$type": "color",
+    "$description": "Base skin for the unbranded component. Text ≥ 4.5:1 and border/focus ≥ 3:1 on both surfaces (enforced by src/tokens/contrast.test.ts).",
+    "surface": {
+      "$value": "{color.white}"
+    },
+    "surface-muted": {
+      "$value": "{color.gray.100}"
+    },
+    "text": {
+      "$value": "{color.gray.900}"
+    },
+    "text-muted": {
+      "$value": "{color.gray.600}"
+    },
+    "border": {
+      "$value": "{color.gray.600}"
+    },
+    "border-subtle": {
+      "$value": "{color.gray.300}",
+      "$description": "Decoration only; fails 3:1. Never the sole indicator of a control or state."
+    },
+    "focus": {
+      "$value": "{color.blue.700}"
+    }
+  },
+  "accent": {
+    "$type": "color",
+    "$description": "Gradient accents. `on` text must reach 4.5:1 against both stops (enforced by src/tokens/contrast.test.ts).",
+    "blue": {
+      "start": {
+        "$value": "{color.blue.700}"
+      },
+      "end": {
+        "$value": "{color.blue.600}"
+      },
+      "on": {
+        "$value": "{color.white}"
+      }
+    },
+    "plum": {
+      "start": {
+        "$value": "{color.plum.700}"
+      },
+      "end": {
+        "$value": "{color.plum.600}"
+      },
+      "on": {
+        "$value": "{color.white}"
+      }
+    },
+    "green": {
+      "start": {
+        "$value": "{color.green.700}"
+      },
+      "end": {
+        "$value": "{color.green.600}"
+      },
+      "on": {
+        "$value": "{color.white}"
+      }
+    },
+    "orange": {
+      "start": {
+        "$value": "{color.orange.700}"
+      },
+      "end": {
+        "$value": "{color.orange.600}"
+      },
+      "on": {
+        "$value": "{color.white}"
+      }
+    }
+  }
+}

@@ -16,7 +16,9 @@ Requires Node 24 (`.nvmrc`).
 ```sh
 npm install            # also installs git hooks (lefthook)
 npm run storybook      # dev server with hot reload at http://localhost:6006
-npm test               # stories as tests: play functions + a11y, in headless Chromium
+npm run tokens         # build design tokens (runs automatically on install, storybook, build, test)
+npm test               # token contrast check + stories as tests (play functions + a11y, headless Chromium)
+npm run test:wip       # also runs stories tagged `wip` (written test-first, not passing yet)
 npm run lint           # ESLint + Stylelint
 npm run typecheck      # tsc --noEmit
 npm run build-storybook
@@ -24,9 +26,15 @@ npm run build-storybook
 
 Git hooks: pre-commit formats and lints staged files; pre-push runs typecheck and tests.
 
+## Design tokens
+
+W3C DTCG JSON in `tokens/`: primitives, plus semantic sets that reference them (a `neutral` base skin and per-hue accents). Style Dictionary builds them into CSS custom properties and a resolved JSON file, both generated and not committed. The component reads only its own `--adaptabs-*` role variables (trigger, active trigger, border, panel, focus), which fall back to the neutral set. The hero restyles it by pointing those roles at the current accent, without overriding any component selectors.
+
+White text must reach 4.5:1 against both stops of every accent gradient. Neutral text needs 4.5:1 and borders and focus rings need 3:1 on both neutral surfaces. A unit test checks all of this on every `npm test`. The original's light blue and green ends failed that, so they're darker here. Its yellow failed at both ends, so it's now burnt orange.
+
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and every push to `dev` or `main`: lint → typecheck → story tests → `build-storybook`.
+GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and every push to `dev` or `main`: lint → typecheck → tests (token contrast + stories) → `build-storybook`.
 
 Pushes to `main` then also run Chromatic visual tests and deploy the built Storybook to GitHub Pages. Everything else skips Chromatic to save snapshots.
 
