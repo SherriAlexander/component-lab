@@ -20,3 +20,7 @@ npm run build-storybook
 ```
 
 Git hooks: pre-commit formats and lints staged files; pre-push runs typecheck and tests.
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: lint → typecheck → story tests → `build-storybook`. Then, if those pass, it runs Chromatic visual tests and (on `main` only) deploys the built Storybook to GitHub Pages.
