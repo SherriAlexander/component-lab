@@ -12,12 +12,17 @@ export default defineConfig({
   test: {
     projects: [
       {
+        test: { name: 'unit', include: ['src/**/*.test.ts'], environment: 'node' },
+      },
+      {
         extends: true,
         plugins: [
           // The plugin will run tests for the stories defined in your Storybook config
           // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
           storybookTest({
             configDir: path.join(dirname, '.storybook'),
+            // `wip` = failing-first spec stories; skipped in gated runs, run with `npm run test:wip`.
+            tags: { skip: process.env.WIP ? [] : ['wip'] },
           }),
         ],
         test: {

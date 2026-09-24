@@ -1,0 +1,63 @@
+{
+  "color": {
+    "$type": "color",
+    "white": { "$value": "#ffffff" },
+    "black": { "$value": "#00070b" },
+    "gray": {
+      "100": { "$value": "#f9f9f9" },
+      "300": { "$value": "#cccccc" },
+      "600": { "$value": "#6c6e66" },
+      "900": { "$value": "#383935" }
+    },
+    "blue": {
+      "600": { "$value": "#0079a8" },
+      "700": { "$value": "#015374" }
+    },
+    "plum": {
+      "600": { "$value": "#8b244f" },
+      "700": { "$value": "#5e2852" }
+    },
+    "green": {
+      "600": { "$value": "#467f35" },
+      "700": { "$value": "#3b6d2c" }
+    },
+    "orange": {
+      "600": { "$value": "#c2410c" },
+      "700": { "$value": "#9a3412" }
+    }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "heading": { "$value": ["Oswald", "sans-serif"] },
+      "body": { "$value": ["Montserrat", "sans-serif"] },
+      "system": { "$value": ["system-ui", "sans-serif"] }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": { "$value": 400 },
+      "bold": { "$value": 700 }
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "1": { "$value": { "value": 0.5, "unit": "rem" } },
+    "2": { "$value": { "value": 1, "unit": "rem" } },
+    "3": { "$value": { "value": 1.5, "unit": "rem" } },
+    "4": { "$value": { "value": 2, "unit": "rem" } },
+    "6": { "$value": { "value": 3, "unit": "rem" } }
+  },
+  "motion": {
+    "duration": {
+      "$type": "duration",
+      "fast": { "$value": "200ms" },
+      "tabs": { "$value": "400ms" }
+    },
+    "easing": {
+      "$type": "cubicBezier",
+      "in-out-cubic": { "$value": [0.645, 0.045, 0.355, 1] },
+      "in-out-quad": { "$value": [0.455, 0.03, 0.515, 0.955] },
+      "out-sine": { "$value": [0.39, 0.575, 0.565, 1] }
+    }
+  }
+}
