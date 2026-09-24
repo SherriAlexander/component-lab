@@ -1,3 +1,6 @@
+import '@fontsource/montserrat/latin-400.css';
+import '@fontsource/montserrat/latin-700.css';
+import '@fontsource/oswald/latin-400.css';
 import '../src/tokens/tokens.css';
 import type { Preview } from '@storybook/react-vite';
 

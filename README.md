@@ -42,3 +42,14 @@ Pushes to `main` then also run Chromatic visual tests and deploy the built Story
 
 - `dev` is the integration branch. Feature branches come off `dev`, and PRs merge back into `dev`.
 - `main` is the published branch. `dev` merges into `main` (regular merge commit, not squash) when a snapshot run and deploy are wanted.
+
+## Credits
+
+Photos from [Unsplash](https://unsplash.com/license), served via [Lorem Picsum](https://picsum.photos):
+
+- Experience: [Abigail Keenan](https://unsplash.com/photos/8jqna7aA-vs)
+- Inspire: [Stefanus Martanto Setyo Husodo](https://unsplash.com/photos/GKR1tBkmW3M)
+- Explore: [Andrew Ridley](https://unsplash.com/photos/Kt5hRENuotI)
+- Connect: [Dmitry Sytnik](https://unsplash.com/photos/bW2vHKCxbx4)
+
+Fonts: Oswald and Montserrat (SIL Open Font License), self-hosted via Fontsource. Icons: Material Icons (Apache 2.0).
