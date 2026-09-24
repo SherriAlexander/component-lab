@@ -4,7 +4,10 @@ A small Storybook showing `AdaptiveTabs`: an accessible React + TypeScript primi
 
 Rebuilt from my [2018 CodePen original](https://codepen.io/SherriAlexander/pen/GwpZjv).
 
-> Work in progress. Storybook and Chromatic links will be added once deployed.
+- **Storybook:** https://sherrialexander.github.io/component-lab/
+- **Chromatic:** [published Storybook](https://main--6ab46730157b87223854a229.chromatic.com) · [component library](https://www.chromatic.com/library?appId=6ab46730157b87223854a229)
+
+> Work in progress.
 
 ## Local development
 
@@ -23,4 +26,11 @@ Git hooks: pre-commit formats and lints staged files; pre-push runs typecheck an
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: lint → typecheck → story tests → `build-storybook`. Then, if those pass, it runs Chromatic visual tests and (on `main` only) deploys the built Storybook to GitHub Pages.
+GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and every push to `dev` or `main`: lint → typecheck → story tests → `build-storybook`.
+
+Pushes to `main` then also run Chromatic visual tests and deploy the built Storybook to GitHub Pages. Everything else skips Chromatic to save snapshots.
+
+## Branches
+
+- `dev` is the integration branch. Feature branches come off `dev`, and PRs merge back into `dev`.
+- `main` is the published branch. `dev` merges into `main` (regular merge commit, not squash) when a snapshot run and deploy are wanted.
