@@ -1,6 +1,6 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, waitFor } from 'storybook/test';
-import { AdaptiveTabs } from './AdaptiveTabs';
+import { AdaptiveTabs, type AdaptiveTabsItem } from './AdaptiveTabs';
 
 // Stories tagged `wip` are skipped by `npm test` (pre-push, CI) and run by `npm run test:wip`.
 // Remove the tag once a story passes.
@@ -23,18 +23,31 @@ const setWidth = (canvasElement: HTMLElement, width: string) => {
   el.style.width = width;
 };
 
-const items = [
-  <AdaptiveTabs.Item key="one" value="one" title="One">
-    <p>
-      First panel. <a href="#one">Read more about one</a>
-    </p>
-  </AdaptiveTabs.Item>,
-  <AdaptiveTabs.Item key="two" value="two" title="Two">
-    <p>Second panel, no focusable content.</p>
-  </AdaptiveTabs.Item>,
-  <AdaptiveTabs.Item key="three" value="three" title="Three">
-    <p>Third panel, no focusable content.</p>
-  </AdaptiveTabs.Item>,
+/**
+ * Accordion mode is `<details><summary><hN>title</hN></summary>…</details>`.
+ * `<summary>` has no ARIA role to query by, so find sections by their title text.
+ */
+const section = (canvasElement: HTMLElement, title: string) => {
+  const details = [...canvasElement.querySelectorAll('details')].find(
+    (d) => d.querySelector('summary')?.textContent.trim() === title,
+  );
+  const summary = details?.querySelector('summary');
+  if (!details || !summary) throw new Error(`no <details> titled "${title}"`);
+  return { details, summary };
+};
+
+const items: AdaptiveTabsItem[] = [
+  {
+    value: 'one',
+    title: 'One',
+    content: (
+      <p>
+        First panel. <a href="#one">Read more about one</a>
+      </p>
+    ),
+  },
+  { value: 'two', title: 'Two', content: <p>Second panel, no focusable content.</p> },
+  { value: 'three', title: 'Three', content: <p>Third panel, no focusable content.</p> },
 ];
 
 const meta = {
@@ -44,10 +57,10 @@ const meta = {
     label: 'Placeholder tabs',
     defaultValue: 'one',
     onValueChange: fn(),
-    children: items,
+    items,
   },
   argTypes: {
-    children: { control: false },
+    items: { control: false },
   },
 } satisfies Meta<typeof AdaptiveTabs>;
 
@@ -55,7 +68,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const TabsMode: Story = {
-  tags: ['wip'],
   decorators: [container(WIDE)],
   play: async ({ canvas, canvasElement }) => {
     const tablist = canvas.getByRole('tablist', { name: 'Placeholder tabs' });
@@ -95,7 +107,6 @@ export const TabsMode: Story = {
 };
 
 export const AccordionMode: Story = {
-  tags: ['wip'],
   decorators: [container(NARROW)],
   play: async ({ canvas, canvasElement, userEvent, args }) => {
     await expect(canvas.queryByRole('tablist')).toBeNull();
@@ -104,43 +115,54 @@ export const AccordionMode: Story = {
       'accordion',
     );
 
-    // Headers: <h3><button aria-expanded aria-controls>
-    const headers = canvas.getAllByRole('heading', { level: 3 });
-    await expect(headers).toHaveLength(3);
-    const one = canvas.getByRole('button', { name: 'One' });
-    const two = canvas.getByRole('button', { name: 'Two' });
-    const three = canvas.getByRole('button', { name: 'Three' });
-    await expect(headers[0]).toContainElement(one);
+    // Headers: <details><summary><h3>
+    await expect(canvas.getAllByRole('heading', { level: 3 })).toHaveLength(3);
+    const one = section(canvasElement, 'One');
+    const two = section(canvasElement, 'Two');
+    const three = section(canvasElement, 'Three');
+    await expect(one.summary).toContainElement(
+      canvas.getByRole('heading', { level: 3, name: 'One' }),
+    );
 
-    await expect(one).toHaveAttribute('aria-expanded', 'true');
-    await expect(two).toHaveAttribute('aria-expanded', 'false');
-    await expect(three).toHaveAttribute('aria-expanded', 'false');
-    const region = canvas.getByRole('region', { name: 'One' });
-    await expect(one).toHaveAttribute('aria-controls', region.id);
+    await expect(one.details).toHaveAttribute('open');
+    await expect(two.details).not.toHaveAttribute('open');
+    await expect(three.details).not.toHaveAttribute('open');
+    await expect(canvas.getByText(/First panel/)).toBeVisible();
+    await expect(canvas.getByText(/Second panel/)).not.toBeVisible();
 
-    // Opening another closes the current one
-    await userEvent.click(two);
-    await expect(two).toHaveAttribute('aria-expanded', 'true');
-    await expect(one).toHaveAttribute('aria-expanded', 'false');
-    await expect(args.onValueChange).toHaveBeenLastCalledWith('two');
+    // Items open independently; the last one opened becomes the value
+    await expect(one.details).not.toHaveAttribute('name');
+    await userEvent.click(two.summary);
+    await expect(two.details).toHaveAttribute('open');
+    await expect(one.details).toHaveAttribute('open');
+    await waitFor(() => expect(args.onValueChange).toHaveBeenLastCalledWith('two'));
 
-    // Clicking the open header collapses it
-    await userEvent.click(two);
-    await expect(two).toHaveAttribute('aria-expanded', 'false');
-    await expect(canvas.queryByRole('region')).toBeNull();
-    await expect(args.onValueChange).toHaveBeenLastCalledWith(null);
+    // Closing the current item falls back to the last-opened item still open
+    await userEvent.click(two.summary);
+    await expect(two.details).not.toHaveAttribute('open');
+    await expect(canvas.getByText(/Second panel/)).not.toBeVisible();
+    await waitFor(() => expect(args.onValueChange).toHaveBeenLastCalledWith('one'));
+
+    // Closing a non-current item doesn't change the value
+    await userEvent.click(three.summary);
+    await waitFor(() => expect(args.onValueChange).toHaveBeenLastCalledWith('three'));
+    await userEvent.click(one.summary);
+    await expect(one.details).not.toHaveAttribute('open');
+    await expect(args.onValueChange).toHaveBeenLastCalledWith('three');
+
+    // Closing the last open item → null
+    await userEvent.click(three.summary);
+    await waitFor(() => expect(args.onValueChange).toHaveBeenLastCalledWith(null));
   },
 };
 
 export const Collapsed: Story = {
-  tags: ['wip'],
   args: { defaultValue: null },
   decorators: [container(NARROW)],
   play: async ({ canvas, canvasElement }) => {
-    for (const button of canvas.getAllByRole('button')) {
-      await expect(button).toHaveAttribute('aria-expanded', 'false');
-    }
-    await expect(canvas.queryByRole('region')).toBeNull();
+    const all = canvasElement.querySelectorAll('details');
+    await expect(all).toHaveLength(3);
+    for (const d of all) await expect(d).not.toHaveAttribute('open');
 
     // Tabs mode never shows null: no prior value → first item
     setWidth(canvasElement, WIDE);
@@ -227,43 +249,43 @@ export const KeyboardAccordion: Story = {
   name: 'Keyboard: Accordion',
   tags: ['wip'],
   decorators: [container(NARROW)],
-  play: async ({ canvas, userEvent, args }) => {
-    const one = canvas.getByRole('button', { name: 'One' });
-    const two = canvas.getByRole('button', { name: 'Two' });
-    const three = canvas.getByRole('button', { name: 'Three' });
+  play: async ({ canvasElement, userEvent, args }) => {
+    const one = section(canvasElement, 'One');
+    const two = section(canvasElement, 'Two');
+    const three = section(canvasElement, 'Three');
 
     await userEvent.tab();
-    await expect(one).toHaveFocus();
+    await expect(one.summary).toHaveFocus();
 
     // Up/Down/Home/End move focus without changing what's open
     await userEvent.keyboard('{ArrowDown}');
-    await expect(two).toHaveFocus();
+    await expect(two.summary).toHaveFocus();
     await userEvent.keyboard('{ArrowUp}');
-    await expect(one).toHaveFocus();
+    await expect(one.summary).toHaveFocus();
     await userEvent.keyboard('{End}');
-    await expect(three).toHaveFocus();
+    await expect(three.summary).toHaveFocus();
     await userEvent.keyboard('{Home}');
-    await expect(one).toHaveFocus();
-    await expect(one).toHaveAttribute('aria-expanded', 'true');
+    await expect(one.summary).toHaveFocus();
+    await expect(one.details).toHaveAttribute('open');
     await expect(args.onValueChange).not.toHaveBeenCalled();
 
-    // Enter/Space toggle
+    // Enter/Space toggle (native <summary> behavior)
     await userEvent.keyboard('{Enter}');
-    await expect(one).toHaveAttribute('aria-expanded', 'false');
-    await expect(args.onValueChange).toHaveBeenLastCalledWith(null);
+    await expect(one.details).not.toHaveAttribute('open');
+    await waitFor(() => expect(args.onValueChange).toHaveBeenLastCalledWith(null));
     await userEvent.keyboard(' ');
-    await expect(one).toHaveAttribute('aria-expanded', 'true');
+    await expect(one.details).toHaveAttribute('open');
     await userEvent.keyboard('{Enter}');
 
     // Closed panel's link is unreachable: Tab goes header → header
     await userEvent.tab();
-    await expect(two).toHaveFocus();
+    await expect(two.summary).toHaveFocus();
 
     await userEvent.keyboard('{Enter}');
-    await expect(two).toHaveAttribute('aria-expanded', 'true');
-    await expect(one).toHaveAttribute('aria-expanded', 'false');
+    await expect(two.details).toHaveAttribute('open');
+    await expect(one.details).not.toHaveAttribute('open');
     await userEvent.tab();
-    await expect(three).toHaveFocus();
+    await expect(three.summary).toHaveFocus();
   },
 };
 
@@ -272,8 +294,8 @@ export const ResizePreservesSelectionAndFocus: Story = {
   tags: ['wip'],
   decorators: [container(NARROW)],
   play: async ({ canvas, canvasElement, userEvent }) => {
-    await userEvent.click(canvas.getByRole('button', { name: 'Two' }));
-    await expect(canvas.getByRole('button', { name: 'Two' })).toHaveFocus();
+    await userEvent.click(section(canvasElement, 'Two').summary);
+    await expect(section(canvasElement, 'Two').summary).toHaveFocus();
 
     // Accordion → tabs: same value selected, focus moves to its tab
     setWidth(canvasElement, WIDE);
@@ -282,18 +304,68 @@ export const ResizePreservesSelectionAndFocus: Story = {
     await expect(tab).toHaveAttribute('aria-selected', 'true');
     await expect(tab).toHaveFocus();
 
-    // Tabs → accordion: same value expanded, focus moves to its header
+    // Tabs → accordion: same value open, focus moves to its summary
     setWidth(canvasElement, NARROW);
     await waitFor(() => expect(canvas.queryByRole('tablist')).toBeNull());
-    const header = canvas.getByRole('button', { name: 'Two' });
-    await expect(header).toHaveAttribute('aria-expanded', 'true');
-    await expect(header).toHaveFocus();
+    const two = section(canvasElement, 'Two');
+    await expect(two.details).toHaveAttribute('open');
+    await expect(two.summary).toHaveFocus();
 
     // Collapse to null, then widen: tabs fall back to the last non-null value
-    await userEvent.click(header);
-    await expect(header).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(two.summary);
+    await expect(two.details).not.toHaveAttribute('open');
     setWidth(canvasElement, WIDE);
     await waitFor(() => expect(canvas.getByRole('tablist')).toBeVisible());
     await expect(canvas.getByRole('tab', { name: 'Two' })).toHaveAttribute('aria-selected', 'true');
+  },
+};
+
+export const ResizeWithSeveralOpen: Story = {
+  decorators: [container(NARROW)],
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    // One is open by default; open Three, then Two, then close Two → Three is current
+    await userEvent.click(section(canvasElement, 'Three').summary);
+    await userEvent.click(section(canvasElement, 'Two').summary);
+    await userEvent.click(section(canvasElement, 'Two').summary);
+
+    // Accordion → tabs: the last-opened item still open is selected
+    setWidth(canvasElement, WIDE);
+    await waitFor(() => expect(canvas.getByRole('tablist')).toBeVisible());
+    await expect(canvas.getByRole('tab', { name: 'Three' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    // Tabs → accordion: only the selected item is open
+    setWidth(canvasElement, NARROW);
+    await waitFor(() => expect(canvas.queryByRole('tablist')).toBeNull());
+    await expect(section(canvasElement, 'Three').details).toHaveAttribute('open');
+    await expect(section(canvasElement, 'One').details).not.toHaveAttribute('open');
+    await expect(section(canvasElement, 'Two').details).not.toHaveAttribute('open');
+  },
+};
+
+export const WithHeader: Story = {
+  args: { header: <h2>Section heading</h2> },
+  decorators: [container(WIDE)],
+  play: async ({ canvas, canvasElement }) => {
+    const root = canvasElement.querySelector('[data-part="root"]');
+    const heading = canvas.getByRole('heading', { level: 2, name: 'Section heading' });
+    await expect(root).toContainElement(heading);
+
+    // Tabs: header comes before the tablist
+    const tablist = canvas.getByRole('tablist');
+    await expect(
+      heading.compareDocumentPosition(tablist) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    // Accordion: header comes before the first <summary>
+    setWidth(canvasElement, NARROW);
+    await waitFor(() => expect(canvas.queryByRole('tablist')).toBeNull());
+    const first = section(canvasElement, 'One').summary;
+    await expect(
+      canvas.getByRole('heading', { level: 2 }).compareDocumentPosition(first) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   },
 };

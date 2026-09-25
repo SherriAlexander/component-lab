@@ -1,0 +1,13 @@
+.adaptive-tabs {
+  container-type: inline-size;
+}
+
+.adaptive-tabs__inner {
+  --adaptive-tabs-mode: accordion;
+}
+
+@container (min-width: 40rem) {
+  .adaptive-tabs__inner {
+    --adaptive-tabs-mode: tabs;
+  }
+}
