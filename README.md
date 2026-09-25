@@ -28,7 +28,7 @@ Git hooks: pre-commit formats and lints staged files; pre-push runs typecheck an
 
 ## Design tokens
 
-W3C DTCG JSON in `tokens/`: primitives, plus semantic sets that reference them (a `neutral` base skin and per-hue accents). Style Dictionary builds them into CSS custom properties and a resolved JSON file, both generated and not committed. The component reads only its own `--adaptabs-*` role variables (trigger, active trigger, border, panel, focus), which fall back to the neutral set. The hero restyles it by pointing those roles at the current accent, without overriding any component selectors.
+W3C DTCG JSON in `tokens/`: primitives, plus semantic sets that reference them (a `neutral` base skin and per-hue accents). Style Dictionary builds them into CSS custom properties and a resolved JSON file, both generated and not committed. The component reads only its own `--adaptive-tabs-*` role variables (trigger, active trigger, border, panel, focus), which fall back to the neutral set. The hero restyles it by pointing those roles at the current accent, without overriding any component selectors.
 
 White text must reach 4.5:1 against both stops of every accent gradient. Neutral text needs 4.5:1 and borders and focus rings need 3:1 on both neutral surfaces. A unit test checks all of this on every `npm test`. The original's light blue and green ends failed that, so they're darker here. Its yellow failed at both ends, so it's now burnt orange.
 

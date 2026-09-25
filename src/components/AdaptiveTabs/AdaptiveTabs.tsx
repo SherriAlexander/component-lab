@@ -1,4 +1,14 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+
+import './AdaptiveTabs.css';
 
 export type AdaptiveTabsMode = 'tabs' | 'accordion';
 export type AdaptiveTabsActivation = 'automatic' | 'manual';
@@ -7,16 +17,17 @@ export type AdaptiveTabsHeadingLevel = 2 | 3 | 4 | 5 | 6;
 export interface AdaptiveTabsProps {
   /** Accessible name for the tablist (tabs mode) or accordion group. */
   label: string;
-  /** Controlled open item. `null` = all collapsed (accordion only; tabs mode falls back). */
-  value?: string | null;
-  /** Uncontrolled initial open item. */
+  /** Initially open item. `null` = all collapsed (accordion only; tabs mode falls back). */
   defaultValue?: string | null;
+  /** Current item changed: selected tab, or last-opened accordion item still open (`null` = none). */
   onValueChange?: (value: string | null) => void;
   /** Tabs mode: `automatic` selects on arrow keys; `manual` waits for Enter/Space. */
   activation?: AdaptiveTabsActivation;
   /** Heading level wrapping each accordion header button. */
   headingLevel?: AdaptiveTabsHeadingLevel;
   className?: string;
+  /** Rendered inside the root, before the tablist (tabs) or first header (accordion). E.g. a section heading. */
+  header?: ReactNode;
   /** One entry per tab / accordion section, in order. */
   items: AdaptiveTabsItem[];
 }
@@ -44,18 +55,71 @@ export function useAdaptiveTabs(): AdaptiveTabsState {
   return state;
 }
 
-/*
-{items.map((item) => (
-  <button key={item.value} …>{item.title}</button>
-))}
-  */
+// TODO: mode detection, tabs
+export function AdaptiveTabs({
+  className,
+  header,
+  defaultValue,
+  items,
+  onValueChange,
+}: AdaptiveTabsProps) {
+  const [mode, setMode] = useState<AdaptiveTabsMode>('accordion');
+  const [openItems, setOpenItems] = useState<string[]>(defaultValue ? [defaultValue] : []);
+  const value = openItems.at(-1) ?? null;
 
-// TODO: state, mode detection, rendering from `items`. Shell only.
-export function AdaptiveTabs({ className }: AdaptiveTabsProps) {
-  const state: AdaptiveTabsState = { mode: 'accordion', value: null };
+  const lastReported = useRef(value);
+  const innerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (lastReported.current === value) return;
+    lastReported.current = value;
+    onValueChange?.(value);
+  }, [value, onValueChange]);
+
+  useLayoutEffect(() => {
+    const el = innerRef.current;
+    if (!el) return;
+    const cssMode = getComputedStyle(el).getPropertyValue('--adaptive-tabs-mode').trim();
+    setMode(cssMode === 'tabs' ? 'tabs' : 'accordion');
+  }, []);
+
+  const handleToggle = (itemValue: string, isOpen: boolean) => {
+    if (isOpen) {
+      setOpenItems((prev) => (prev.includes(itemValue) ? prev : [...prev, itemValue]));
+    } else {
+      setOpenItems((prev) => prev.filter((v) => v !== itemValue));
+    }
+  };
+
+  const allClassNames = className ? 'adaptive-tabs ' + className : 'adaptive-tabs';
+
   return (
-    <AdaptiveTabsContext value={state}>
-      <div className={className} data-part="root" data-mode={state.mode}></div>
+    <AdaptiveTabsContext value={{ mode, value }}>
+      <div className={allClassNames} data-part="root" data-mode={mode}>
+        <div className="adaptive-tabs__inner" ref={innerRef}>
+          {header && <div data-part="header">{header}</div>}
+          {mode === 'accordion' && (
+            <div className="accordion-group">
+              {items.map((item) => (
+                <details
+                  key={item.value}
+                  className="accordion"
+                  open={openItems.includes(item.value)}
+                  onToggle={(event) => {
+                    handleToggle(item.value, event.currentTarget.open);
+                  }}
+                >
+                  <summary className="accordion__title">
+                    <h3>{item.title}</h3>
+                  </summary>
+                  <div className="accordion__content">{item.content}</div>
+                </details>
+              ))}
+            </div>
+          )}
+          {mode === 'tabs' && <p>Hi I'm tabs</p>}
+        </div>
+      </div>
     </AdaptiveTabsContext>
   );
 }
