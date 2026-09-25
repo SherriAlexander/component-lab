@@ -1,0 +1,69 @@
+/* TODO: hero layout, clip-path shapes (cqw), stat, focus outlines, motion */
+
+/* Page decorator: dark background + gutters */
+.adventure-page {
+  min-height: 100vh;
+  padding: var(--space-4);
+  color: var(--color-white);
+  background: var(--color-black);
+  font-family: var(--font-family-body);
+}
+
+.adventure-side-by-side {
+  display: grid;
+  gap: var(--space-6);
+
+  figure {
+    margin: 0;
+  }
+}
+
+/* Breakpoint: accordion below 56rem (component default is 40rem) */
+.adventure-hero .adaptive-tabs__inner {
+  --adaptive-tabs-mode: accordion;
+}
+
+@container (min-width: 56rem) {
+  .adventure-hero .adaptive-tabs__inner {
+    --adaptive-tabs-mode: tabs;
+  }
+}
+
+/* Current value → accent set. Root reflects the current value; accordion items their own. */
+.adventure-hero[data-value='experience'],
+.adventure-hero [data-part='item'][data-value='experience'] {
+  --accent-start: var(--accent-blue-start);
+  --accent-end: var(--accent-blue-end);
+  --on-accent: var(--accent-blue-on);
+}
+
+.adventure-hero[data-value='inspire'],
+.adventure-hero [data-part='item'][data-value='inspire'] {
+  --accent-start: var(--accent-plum-start);
+  --accent-end: var(--accent-plum-end);
+  --on-accent: var(--accent-plum-on);
+}
+
+.adventure-hero[data-value='explore'],
+.adventure-hero [data-part='item'][data-value='explore'] {
+  --accent-start: var(--accent-green-start);
+  --accent-end: var(--accent-green-end);
+  --on-accent: var(--accent-green-on);
+}
+
+.adventure-hero[data-value='connect'],
+.adventure-hero [data-part='item'][data-value='connect'] {
+  --accent-start: var(--accent-orange-start);
+  --accent-end: var(--accent-orange-end);
+  --on-accent: var(--accent-orange-on);
+}
+
+/* Component roles → current accent */
+.adventure-hero {
+  --adaptive-tabs-trigger-active-bg: transparent;
+  --adaptive-tabs-trigger-active-fg: var(--on-accent);
+  --adaptive-tabs-border: var(--accent-start);
+  --adaptive-tabs-panel-bg: linear-gradient(var(--accent-start), var(--accent-end));
+  --adaptive-tabs-panel-fg: var(--on-accent);
+  --adaptive-tabs-focus: var(--on-accent);
+}

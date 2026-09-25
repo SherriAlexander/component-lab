@@ -1,6 +1,12 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
+import { useState } from 'react';
 import { expect, fn, waitFor } from 'storybook/test';
-import { AdaptiveTabs, type AdaptiveTabsItem } from './AdaptiveTabs';
+import {
+  AdaptiveTabs,
+  useAdaptiveTabs,
+  type AdaptiveTabsItem,
+  type AdaptiveTabsProps,
+} from './AdaptiveTabs';
 
 // Stories tagged `wip` are skipped by `npm test` (pre-push, CI) and run by `npm run test:wip`.
 // Remove the tag once a story passes.
@@ -66,6 +72,72 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+/** Fills the canvas. Resize the browser (or the Storybook panel) to switch modes at 40rem. */
+export const Default: Story = {};
+
+/** Live `mode` / `value` from `useAdaptiveTabs()` (rendered in the `header` slot, inside the context). */
+const ModeReadout = () => {
+  const { mode, value } = useAdaptiveTabs();
+  return (
+    <output data-testid="readout">
+      mode: <code>{mode}</code> · value: <code>{String(value)}</code>
+    </output>
+  );
+};
+
+const ReadoutDemo = ({ onValueChange, ...props }: AdaptiveTabsProps) => {
+  const [log, setLog] = useState<(string | null)[]>([]);
+  return (
+    <>
+      <AdaptiveTabs
+        {...props}
+        header={<ModeReadout />}
+        onValueChange={(v) => {
+          setLog((prev) => [...prev, v]);
+          onValueChange?.(v);
+        }}
+      />
+      <p>
+        <code>onValueChange</code> calls:{' '}
+        <span data-testid="log">{log.map(String).join(', ') || 'none yet'}</span>
+      </p>
+    </>
+  );
+};
+
+/** Drag the container's corner to switch modes and watch the state follow. */
+export const Readout: Story = {
+  render: (args) => <ReadoutDemo {...args} />,
+  decorators: [
+    (Story) => (
+      <div
+        data-testid="container"
+        style={{
+          width: WIDE,
+          maxWidth: '100%',
+          resize: 'horizontal',
+          overflow: 'auto',
+          padding: '0.5rem',
+          border: '1px dashed var(--neutral-border)',
+        }}
+      >
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const readout = canvas.getByTestId('readout');
+    await expect(readout).toHaveTextContent('mode: tabs · value: one');
+
+    await userEvent.click(canvas.getByRole('tab', { name: 'Two' }));
+    await expect(readout).toHaveTextContent('value: two');
+    await waitFor(() => expect(canvas.getByTestId('log')).toHaveTextContent('two'));
+
+    setWidth(canvasElement, NARROW);
+    await waitFor(() => expect(readout).toHaveTextContent('mode: accordion · value: two'));
+  },
+};
 
 export const TabsMode: Story = {
   decorators: [container(WIDE)],
