@@ -17,15 +17,17 @@ export interface AdaptiveTabsProps {
   /** Heading level wrapping each accordion header button. */
   headingLevel?: AdaptiveTabsHeadingLevel;
   className?: string;
-  children: ReactNode;
+  /** One entry per tab / accordion section, in order. */
+  items: AdaptiveTabsItem[];
 }
 
-export interface AdaptiveTabsItemProps {
+export interface AdaptiveTabsItem {
+  /** Unique id; what `value` / `onValueChange` refer to. */
   value: string;
   /** Tab label in tabs mode, header button text in accordion mode. */
   title: ReactNode;
   /** Panel content. */
-  children: ReactNode;
+  content: ReactNode;
 }
 
 export interface AdaptiveTabsState {
@@ -42,19 +44,18 @@ export function useAdaptiveTabs(): AdaptiveTabsState {
   return state;
 }
 
-// TODO: state, mode detection, rendering. Shell only.
-function Root({ className, children }: AdaptiveTabsProps) {
+/*
+{items.map((item) => (
+  <button key={item.value} …>{item.title}</button>
+))}
+  */
+
+// TODO: state, mode detection, rendering from `items`. Shell only.
+export function AdaptiveTabs({ className }: AdaptiveTabsProps) {
   const state: AdaptiveTabsState = { mode: 'accordion', value: null };
   return (
     <AdaptiveTabsContext value={state}>
-      <div className={className} data-part="root" data-mode={state.mode}>
-        {children}
-      </div>
+      <div className={className} data-part="root" data-mode={state.mode}></div>
     </AdaptiveTabsContext>
   );
 }
-
-// TODO: Root reads Item props to render either mode's DOM.
-const Item: (props: AdaptiveTabsItemProps) => ReactNode = () => null;
-
-export const AdaptiveTabs = Object.assign(Root, { Item });

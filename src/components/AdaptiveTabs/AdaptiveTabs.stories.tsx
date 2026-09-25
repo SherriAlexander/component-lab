@@ -1,6 +1,6 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, waitFor } from 'storybook/test';
-import { AdaptiveTabs } from './AdaptiveTabs';
+import { AdaptiveTabs, type AdaptiveTabsItem } from './AdaptiveTabs';
 
 // Stories tagged `wip` are skipped by `npm test` (pre-push, CI) and run by `npm run test:wip`.
 // Remove the tag once a story passes.
@@ -23,18 +23,18 @@ const setWidth = (canvasElement: HTMLElement, width: string) => {
   el.style.width = width;
 };
 
-const items = [
-  <AdaptiveTabs.Item key="one" value="one" title="One">
-    <p>
-      First panel. <a href="#one">Read more about one</a>
-    </p>
-  </AdaptiveTabs.Item>,
-  <AdaptiveTabs.Item key="two" value="two" title="Two">
-    <p>Second panel, no focusable content.</p>
-  </AdaptiveTabs.Item>,
-  <AdaptiveTabs.Item key="three" value="three" title="Three">
-    <p>Third panel, no focusable content.</p>
-  </AdaptiveTabs.Item>,
+const items: AdaptiveTabsItem[] = [
+  {
+    value: 'one',
+    title: 'One',
+    content: (
+      <p>
+        First panel. <a href="#one">Read more about one</a>
+      </p>
+    ),
+  },
+  { value: 'two', title: 'Two', content: <p>Second panel, no focusable content.</p> },
+  { value: 'three', title: 'Three', content: <p>Third panel, no focusable content.</p> },
 ];
 
 const meta = {
@@ -44,10 +44,10 @@ const meta = {
     label: 'Placeholder tabs',
     defaultValue: 'one',
     onValueChange: fn(),
-    children: items,
+    items,
   },
   argTypes: {
-    children: { control: false },
+    items: { control: false },
   },
 } satisfies Meta<typeof AdaptiveTabs>;
 
