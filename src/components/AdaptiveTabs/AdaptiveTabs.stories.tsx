@@ -68,7 +68,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const TabsMode: Story = {
-  tags: ['wip'],
   decorators: [container(WIDE)],
   play: async ({ canvas, canvasElement }) => {
     const tablist = canvas.getByRole('tablist', { name: 'Placeholder tabs' });
@@ -158,7 +157,6 @@ export const AccordionMode: Story = {
 };
 
 export const Collapsed: Story = {
-  tags: ['wip'],
   args: { defaultValue: null },
   decorators: [container(NARROW)],
   play: async ({ canvas, canvasElement }) => {
@@ -323,7 +321,6 @@ export const ResizePreservesSelectionAndFocus: Story = {
 };
 
 export const ResizeWithSeveralOpen: Story = {
-  tags: ['wip'],
   decorators: [container(NARROW)],
   play: async ({ canvas, canvasElement, userEvent }) => {
     // One is open by default; open Three, then Two, then close Two → Three is current
@@ -349,7 +346,6 @@ export const ResizeWithSeveralOpen: Story = {
 };
 
 export const WithHeader: Story = {
-  tags: ['wip'],
   args: { header: <h2>Section heading</h2> },
   decorators: [container(WIDE)],
   play: async ({ canvas, canvasElement }) => {

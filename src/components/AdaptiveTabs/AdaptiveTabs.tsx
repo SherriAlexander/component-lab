@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
   useState,
@@ -55,69 +56,142 @@ export function useAdaptiveTabs(): AdaptiveTabsState {
   return state;
 }
 
-// TODO: mode detection, tabs
+// TODO: tabs
 export function AdaptiveTabs({
   className,
-  header,
   defaultValue,
+  header,
   items,
+  label,
   onValueChange,
 }: AdaptiveTabsProps) {
   const [mode, setMode] = useState<AdaptiveTabsMode>('accordion');
   const [openItems, setOpenItems] = useState<string[]>(defaultValue ? [defaultValue] : []);
+  const [lastOpened, setLastOpened] = useState(defaultValue ?? null);
   const value = openItems.at(-1) ?? null;
+  const selectedTab = value ?? lastOpened ?? items[0]?.value ?? null;
+  const current = mode === 'tabs' ? selectedTab : value;
 
-  const lastReported = useRef(value);
+  const id = useId();
+  const lastReported = useRef(current);
   const innerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (lastReported.current === value) return;
-    lastReported.current = value;
-    onValueChange?.(value);
-  }, [value, onValueChange]);
+    if (lastReported.current === current) return;
+    lastReported.current = current;
+    onValueChange?.(current);
+  }, [current, onValueChange]);
 
   useLayoutEffect(() => {
     const el = innerRef.current;
     if (!el) return;
-    const cssMode = getComputedStyle(el).getPropertyValue('--adaptive-tabs-mode').trim();
-    setMode(cssMode === 'tabs' ? 'tabs' : 'accordion');
+
+    const readMode = () => {
+      const cssMode = getComputedStyle(el).getPropertyValue('--adaptive-tabs-mode').trim();
+      const next = cssMode === 'tabs' ? 'tabs' : 'accordion';
+      setMode(next);
+      if (next === 'tabs') {
+        setOpenItems((prev) => (prev.length > 1 ? prev.slice(-1) : prev));
+      }
+    };
+
+    readMode();
+
+    const observer = new ResizeObserver(readMode);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   const handleToggle = (itemValue: string, isOpen: boolean) => {
     if (isOpen) {
       setOpenItems((prev) => (prev.includes(itemValue) ? prev : [...prev, itemValue]));
+      setLastOpened(itemValue);
     } else {
       setOpenItems((prev) => prev.filter((v) => v !== itemValue));
     }
   };
 
+  const selectTab = (itemValue: string) => {
+    setOpenItems([itemValue]);
+    setLastOpened(itemValue);
+  };
+
   const allClassNames = className ? 'adaptive-tabs ' + className : 'adaptive-tabs';
 
   return (
-    <AdaptiveTabsContext value={{ mode, value }}>
-      <div className={allClassNames} data-part="root" data-mode={mode}>
+    <AdaptiveTabsContext value={{ mode, value: current }}>
+      <div className={allClassNames} data-part="root" data-mode={mode} data-value={current}>
         <div className="adaptive-tabs__inner" ref={innerRef}>
           {header && <div data-part="header">{header}</div>}
+
           {mode === 'accordion' && (
-            <div className="accordion-group">
+            <div className="adaptive-tabs__accordion-group">
               {items.map((item) => (
                 <details
                   key={item.value}
-                  className="accordion"
+                  data-part="item"
+                  data-value={item.value}
                   open={openItems.includes(item.value)}
                   onToggle={(event) => {
                     handleToggle(item.value, event.currentTarget.open);
                   }}
                 >
-                  <summary className="accordion__title">
+                  <summary data-part="trigger">
                     <h3>{item.title}</h3>
                   </summary>
-                  <div className="accordion__content">{item.content}</div>
+                  <div data-part="panel">{item.content}</div>
                 </details>
               ))}
             </div>
           )}
-          {mode === 'tabs' && <p>Hi I'm tabs</p>}
+          {mode === 'tabs' && (
+            <>
+              <div data-part="tablist" role="tablist" aria-label={label}>
+                {items.map((item) => {
+                  const isSelected = item.value === selectedTab;
+                  return (
+                    <button
+                      key={item.value}
+                      data-part="trigger"
+                      data-value={item.value}
+                      role="tab"
+                      id={`${id}-tab-${item.value}`}
+                      aria-selected={isSelected}
+                      aria-controls={`${id}-tabpanel-${item.value}`}
+                      tabIndex={isSelected ? 0 : -1}
+                      onClick={() => {
+                        selectTab(item.value);
+                      }}
+                    >
+                      {item.title}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="adaptive-tabs__tabpanels">
+                {items.map((item) => {
+                  const isSelected = item.value === selectedTab;
+                  return (
+                    <div
+                      key={item.value}
+                      data-part="panel"
+                      data-value={item.value}
+                      data-state={isSelected ? 'active' : 'inactive'}
+                      role="tabpanel"
+                      id={`${id}-tabpanel-${item.value}`}
+                      aria-labelledby={`${id}-tab-${item.value}`}
+                      hidden={!isSelected}
+                      inert={!isSelected}
+                    >
+                      {item.content}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </AdaptiveTabsContext>
