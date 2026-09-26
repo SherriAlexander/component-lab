@@ -24,6 +24,13 @@ export default defineConfig(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      // strict preset drops recommended's tabpanel exception; APG wants the visible tabpanel focusable
+      'jsx-a11y/no-noninteractive-tabindex': [
+        'error',
+        { tags: [], roles: ['tabpanel'], allowExpressionValues: true },
+      ],
+    },
   },
   {
     files: ['**/*.js'],

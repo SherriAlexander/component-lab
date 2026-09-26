@@ -56,8 +56,8 @@ export function useAdaptiveTabs(): AdaptiveTabsState {
   return state;
 }
 
-// TODO: tabs
 export function AdaptiveTabs({
+  activation = 'automatic',
   className,
   defaultValue,
   header,
@@ -67,20 +67,22 @@ export function AdaptiveTabs({
 }: AdaptiveTabsProps) {
   const [mode, setMode] = useState<AdaptiveTabsMode>('accordion');
   const [openItems, setOpenItems] = useState<string[]>(defaultValue ? [defaultValue] : []);
-  const [lastOpened, setLastOpened] = useState(defaultValue ?? null);
+  const [lastOpened, setLastOpened] = useState(defaultValue ?? items[0]?.value ?? null);
+
   const value = openItems.at(-1) ?? null;
-  const selectedTab = value ?? lastOpened ?? items[0]?.value ?? null;
-  const current = mode === 'tabs' ? selectedTab : value;
+  const activeTabValue = value ?? lastOpened ?? items[0]?.value ?? null;
+  const currentValue = mode === 'tabs' ? activeTabValue : value;
 
   const id = useId();
-  const lastReported = useRef(current);
+  const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const lastReported = useRef(currentValue);
   const innerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (lastReported.current === current) return;
-    lastReported.current = current;
-    onValueChange?.(current);
-  }, [current, onValueChange]);
+    if (lastReported.current === currentValue) return;
+    lastReported.current = currentValue;
+    onValueChange?.(currentValue);
+  }, [currentValue, onValueChange]);
 
   useLayoutEffect(() => {
     const el = innerRef.current;
@@ -113,6 +115,42 @@ export function AdaptiveTabs({
     }
   };
 
+  const handleTabNavKeyDown = (event: React.KeyboardEvent, index: number) => {
+    let nextTabIndex: number;
+    switch (event.key) {
+      case 'ArrowRight': {
+        event.preventDefault();
+        nextTabIndex = (index + 1) % items.length;
+        break;
+      }
+      case 'ArrowLeft': {
+        event.preventDefault();
+        nextTabIndex = (index - 1 + items.length) % items.length;
+        break;
+      }
+      case 'Home': {
+        event.preventDefault();
+        nextTabIndex = 0;
+        break;
+      }
+      case 'End': {
+        event.preventDefault();
+        nextTabIndex = items.length - 1;
+        break;
+      }
+      default:
+        return;
+    }
+
+    tabButtonRefs.current[nextTabIndex]?.focus();
+    if (activation === 'automatic') {
+      const nextTabValue = items[nextTabIndex]?.value ?? null;
+      if (nextTabValue) {
+        selectTab(nextTabValue);
+      }
+    }
+  };
+
   const selectTab = (itemValue: string) => {
     setOpenItems([itemValue]);
     setLastOpened(itemValue);
@@ -121,8 +159,8 @@ export function AdaptiveTabs({
   const allClassNames = className ? 'adaptive-tabs ' + className : 'adaptive-tabs';
 
   return (
-    <AdaptiveTabsContext value={{ mode, value: current }}>
-      <div className={allClassNames} data-part="root" data-mode={mode} data-value={current}>
+    <AdaptiveTabsContext value={{ mode, value: currentValue }}>
+      <div className={allClassNames} data-part="root" data-mode={mode} data-value={currentValue}>
         <div className="adaptive-tabs__inner" ref={innerRef}>
           {header && <div data-part="header">{header}</div>}
 
@@ -149,11 +187,14 @@ export function AdaptiveTabs({
           {mode === 'tabs' && (
             <>
               <div data-part="tablist" role="tablist" aria-label={label}>
-                {items.map((item) => {
-                  const isSelected = item.value === selectedTab;
+                {items.map((item, index) => {
+                  const isSelected = item.value === activeTabValue;
                   return (
                     <button
                       key={item.value}
+                      ref={(el) => {
+                        tabButtonRefs.current[index] = el;
+                      }}
                       data-part="trigger"
                       data-value={item.value}
                       role="tab"
@@ -164,6 +205,9 @@ export function AdaptiveTabs({
                       onClick={() => {
                         selectTab(item.value);
                       }}
+                      onKeyDown={(event) => {
+                        handleTabNavKeyDown(event, index);
+                      }}
                     >
                       {item.title}
                     </button>
@@ -172,7 +216,7 @@ export function AdaptiveTabs({
               </div>
               <div className="adaptive-tabs__tabpanels">
                 {items.map((item) => {
-                  const isSelected = item.value === selectedTab;
+                  const isSelected = item.value === activeTabValue;
                   return (
                     <div
                       key={item.value}
@@ -184,6 +228,7 @@ export function AdaptiveTabs({
                       aria-labelledby={`${id}-tab-${item.value}`}
                       hidden={!isSelected}
                       inert={!isSelected}
+                      tabIndex={0}
                     >
                       {item.content}
                     </div>

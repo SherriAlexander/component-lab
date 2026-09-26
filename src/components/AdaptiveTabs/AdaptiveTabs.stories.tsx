@@ -302,18 +302,23 @@ export const KeyboardTabs: Story = {
     await expect(one).toHaveFocus();
     await expect(one).toHaveAttribute('aria-selected', 'true');
 
-    // Panel with focusable content: Tab goes to the content, not the panel
+    // Every panel is focusable (APG): Tab goes to the panel first, then its content
+    await userEvent.tab();
+    const panelOne = canvas.getByRole('tabpanel', { name: 'One' });
+    await expect(panelOne).toHaveAttribute('tabindex', '0');
+    await expect(panelOne).toHaveFocus();
     await userEvent.tab();
     await expect(canvas.getByRole('link', { name: 'Read more about one' })).toHaveFocus();
-    await expect(canvas.getByRole('tabpanel')).not.toHaveAttribute('tabindex');
 
-    // Panel without focusable content is itself focusable; closed panel One's link is skipped
+    // Hidden panel One and its link are skipped; Tab from tab Two lands on panel Two
     await userEvent.tab({ shift: true });
+    await userEvent.tab({ shift: true });
+    await expect(one).toHaveFocus();
     await userEvent.keyboard('{ArrowRight}');
     await userEvent.tab();
-    const panel = canvas.getByRole('tabpanel', { name: 'Two' });
-    await expect(panel).toHaveAttribute('tabindex', '0');
-    await expect(panel).toHaveFocus();
+    const panelTwo = canvas.getByRole('tabpanel', { name: 'Two' });
+    await expect(panelTwo).toHaveAttribute('tabindex', '0');
+    await expect(panelTwo).toHaveFocus();
   },
 };
 
