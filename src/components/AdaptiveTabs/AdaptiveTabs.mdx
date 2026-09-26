@@ -85,7 +85,7 @@ The component has no motion code and no timers. It exposes state as attributes, 
 
 Accordion motion can also use `details[open]` and `::details-content`. Content, selection and focus always update immediately, and motion never delays them.
 
-Colors come from `--adaptive-tabs-*` role variables that fall back to the neutral token set. Restyle by setting the roles, not by overriding component selectors:
+Colors come from `--adaptive-tabs-*` role variables that fall back to the neutral token set. Change colors by setting the roles. For anything else (layout, shape, spacing, motion), write rules scoped under your composition's class, keyed off `data-part` and state attributes:
 
 | Role                                                        | Default                                |
 | ----------------------------------------------------------- | -------------------------------------- |
