@@ -16,7 +16,7 @@ export type AdaptiveTabsActivation = 'automatic' | 'manual';
 export type AdaptiveTabsHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
 export interface AdaptiveTabsProps {
-  /** Accessible name for the tablist (tabs mode) or accordion group. */
+  /** Accessible name for the tablist. Tabs mode only; accordion mode has no group element to name. */
   label: string;
   /** Initially open item. `null` = all collapsed (accordion only; tabs mode falls back). */
   defaultValue?: string | null;
@@ -24,7 +24,7 @@ export interface AdaptiveTabsProps {
   onValueChange?: (value: string | null) => void;
   /** Tabs mode: `automatic` selects on arrow keys; `manual` waits for Enter/Space. */
   activation?: AdaptiveTabsActivation;
-  /** Heading level wrapping each accordion header button. */
+  /** Heading level wrapping each accordion header (default 3). */
   headingLevel?: AdaptiveTabsHeadingLevel;
   className?: string;
   /** Rendered inside the root, before the tablist (tabs) or first header (accordion). E.g. a section heading. */
@@ -61,6 +61,7 @@ export function AdaptiveTabs({
   className,
   defaultValue,
   header,
+  headingLevel = 3,
   items,
   label,
   onValueChange,
@@ -171,6 +172,7 @@ export function AdaptiveTabs({
     setLastOpened(itemValue);
   };
 
+  const Heading = `h${String(headingLevel)}` as `h${AdaptiveTabsHeadingLevel}`;
   const allClassNames = className ? 'adaptive-tabs ' + className : 'adaptive-tabs';
 
   return (
@@ -192,7 +194,7 @@ export function AdaptiveTabs({
                   }}
                 >
                   <summary data-part="trigger" data-value={item.value}>
-                    <h3>{item.title}</h3>
+                    <Heading>{item.title}</Heading>
                   </summary>
                   <div data-part="panel">{item.content}</div>
                 </details>

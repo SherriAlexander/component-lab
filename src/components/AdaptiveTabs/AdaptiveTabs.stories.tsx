@@ -433,3 +433,12 @@ export const WithHeader: Story = {
     ).toBeTruthy();
   },
 };
+
+export const HeadingLevel: Story = {
+  args: { headingLevel: 4 },
+  decorators: [container(NARROW)],
+  play: async ({ canvas }) => {
+    await expect(canvas.getAllByRole('heading', { level: 4 })).toHaveLength(3);
+    await expect(canvas.queryByRole('heading', { level: 3 })).toBeNull();
+  },
+};
