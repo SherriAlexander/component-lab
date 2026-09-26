@@ -30,6 +30,19 @@ export default defineConfig(
         'error',
         { tags: [], roles: ['tabpanel'], allowExpressionValues: true },
       ],
+      // strict preset bans numbers in template literals; they stringify predictably (e.g. ids from an index)
+      // (restate the rest: options replace the preset's, and the rule's own defaults are loose)
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        {
+          allowAny: false,
+          allowBoolean: false,
+          allowNever: false,
+          allowNullish: false,
+          allowNumber: true,
+          allowRegExp: false,
+        },
+      ],
     },
   },
   {

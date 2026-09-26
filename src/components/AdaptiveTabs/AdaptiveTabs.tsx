@@ -77,6 +77,7 @@ export function AdaptiveTabs({
   const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const lastReported = useRef(currentValue);
   const innerRef = useRef<HTMLDivElement>(null);
+  const focusedTriggerValue = useRef<string | null>(null);
 
   useEffect(() => {
     if (lastReported.current === currentValue) return;
@@ -91,6 +92,11 @@ export function AdaptiveTabs({
     const readMode = () => {
       const cssMode = getComputedStyle(el).getPropertyValue('--adaptive-tabs-mode').trim();
       const next = cssMode === 'tabs' ? 'tabs' : 'accordion';
+      const focused = document.activeElement;
+      focusedTriggerValue.current =
+        focused instanceof HTMLElement && el.contains(focused)
+          ? (focused.closest<HTMLElement>('[data-part="trigger"]')?.dataset.value ?? null)
+          : null;
       setMode(next);
       if (next === 'tabs') {
         setOpenItems((prev) => (prev.length > 1 ? prev.slice(-1) : prev));
@@ -105,6 +111,15 @@ export function AdaptiveTabs({
       observer.disconnect();
     };
   }, []);
+
+  useLayoutEffect(() => {
+    const value = focusedTriggerValue.current;
+    if (!value) return;
+    focusedTriggerValue.current = null;
+    innerRef.current
+      ?.querySelector<HTMLElement>(`[data-part="trigger"][data-value="${CSS.escape(value)}"]`)
+      ?.focus();
+  }, [mode]);
 
   const handleToggle = (itemValue: string, isOpen: boolean) => {
     if (isOpen) {
@@ -176,7 +191,7 @@ export function AdaptiveTabs({
                     handleToggle(item.value, event.currentTarget.open);
                   }}
                 >
-                  <summary data-part="trigger">
+                  <summary data-part="trigger" data-value={item.value}>
                     <h3>{item.title}</h3>
                   </summary>
                   <div data-part="panel">{item.content}</div>
@@ -198,9 +213,9 @@ export function AdaptiveTabs({
                       data-part="trigger"
                       data-value={item.value}
                       role="tab"
-                      id={`${id}-tab-${item.value}`}
+                      id={`${id}-tab-${index}`}
                       aria-selected={isSelected}
-                      aria-controls={`${id}-tabpanel-${item.value}`}
+                      aria-controls={`${id}-tabpanel-${index}`}
                       tabIndex={isSelected ? 0 : -1}
                       onClick={() => {
                         selectTab(item.value);
@@ -215,7 +230,7 @@ export function AdaptiveTabs({
                 })}
               </div>
               <div className="adaptive-tabs__tabpanels">
-                {items.map((item) => {
+                {items.map((item, index) => {
                   const isSelected = item.value === activeTabValue;
                   return (
                     <div
@@ -224,8 +239,8 @@ export function AdaptiveTabs({
                       data-value={item.value}
                       data-state={isSelected ? 'active' : 'inactive'}
                       role="tabpanel"
-                      id={`${id}-tabpanel-${item.value}`}
-                      aria-labelledby={`${id}-tab-${item.value}`}
+                      id={`${id}-tabpanel-${index}`}
+                      aria-labelledby={`${id}-tab-${index}`}
                       hidden={!isSelected}
                       inert={!isSelected}
                       tabIndex={0}

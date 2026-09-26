@@ -356,7 +356,6 @@ export const KeyboardAccordion: Story = {
 
 export const ResizePreservesSelectionAndFocus: Story = {
   name: 'Resize Preserves Selection & Focus',
-  tags: ['wip'],
   decorators: [container(NARROW)],
   play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(section(canvasElement, 'Two').summary);
