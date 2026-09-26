@@ -244,7 +244,6 @@ export const Collapsed: Story = {
 };
 
 export const ManualActivation: Story = {
-  tags: ['wip'],
   args: { activation: 'manual' },
   decorators: [container(WIDE)],
   play: async ({ canvas, userEvent, args }) => {
@@ -275,7 +274,6 @@ export const ManualActivation: Story = {
 
 export const KeyboardTabs: Story = {
   name: 'Keyboard: Tabs',
-  tags: ['wip'],
   decorators: [container(WIDE)],
   play: async ({ canvas, userEvent, args }) => {
     const one = canvas.getByRole('tab', { name: 'One' });
@@ -302,58 +300,53 @@ export const KeyboardTabs: Story = {
     await expect(one).toHaveFocus();
     await expect(one).toHaveAttribute('aria-selected', 'true');
 
-    // Panel with focusable content: Tab goes to the content, not the panel
+    // Every panel is focusable (APG): Tab goes to the panel first, then its content
+    await userEvent.tab();
+    const panelOne = canvas.getByRole('tabpanel', { name: 'One' });
+    await expect(panelOne).toHaveAttribute('tabindex', '0');
+    await expect(panelOne).toHaveFocus();
     await userEvent.tab();
     await expect(canvas.getByRole('link', { name: 'Read more about one' })).toHaveFocus();
-    await expect(canvas.getByRole('tabpanel')).not.toHaveAttribute('tabindex');
 
-    // Panel without focusable content is itself focusable; closed panel One's link is skipped
+    // Hidden panel One and its link are skipped; Tab from tab Two lands on panel Two
     await userEvent.tab({ shift: true });
+    await userEvent.tab({ shift: true });
+    await expect(one).toHaveFocus();
     await userEvent.keyboard('{ArrowRight}');
     await userEvent.tab();
-    const panel = canvas.getByRole('tabpanel', { name: 'Two' });
-    await expect(panel).toHaveAttribute('tabindex', '0');
-    await expect(panel).toHaveFocus();
+    const panelTwo = canvas.getByRole('tabpanel', { name: 'Two' });
+    await expect(panelTwo).toHaveAttribute('tabindex', '0');
+    await expect(panelTwo).toHaveFocus();
   },
 };
 
 export const KeyboardAccordion: Story = {
   name: 'Keyboard: Accordion',
-  tags: ['wip'],
   decorators: [container(NARROW)],
   play: async ({ canvasElement, userEvent, args }) => {
     const one = section(canvasElement, 'One');
     const two = section(canvasElement, 'Two');
     const three = section(canvasElement, 'Three');
 
+    // Tab / Shift+Tab move between headers; the APG accordion pattern has no arrow keys
     await userEvent.tab();
     await expect(one.summary).toHaveFocus();
-
-    // Up/Down/Home/End move focus without changing what's open
-    await userEvent.keyboard('{ArrowDown}');
-    await expect(two.summary).toHaveFocus();
-    await userEvent.keyboard('{ArrowUp}');
-    await expect(one.summary).toHaveFocus();
-    await userEvent.keyboard('{End}');
-    await expect(three.summary).toHaveFocus();
-    await userEvent.keyboard('{Home}');
-    await expect(one.summary).toHaveFocus();
     await expect(one.details).toHaveAttribute('open');
-    await expect(args.onValueChange).not.toHaveBeenCalled();
 
-    // Enter/Space toggle (native <summary> behavior)
-    await userEvent.keyboard('{Enter}');
+    // Enter/Space toggling <summary> is native browser behavior, but user-event only simulates
+    // Enter/Space clicks on button/input/a. Click instead; this still tests our onToggle sync.
+    await userEvent.click(one.summary);
     await expect(one.details).not.toHaveAttribute('open');
     await waitFor(() => expect(args.onValueChange).toHaveBeenLastCalledWith(null));
-    await userEvent.keyboard(' ');
+    await userEvent.click(one.summary);
     await expect(one.details).toHaveAttribute('open');
-    await userEvent.keyboard('{Enter}');
+    await userEvent.click(one.summary);
 
-    // Closed panel's link is unreachable: Tab goes header → header
-    await userEvent.tab();
-    await expect(two.summary).toHaveFocus();
+    // Closed panel's link is unreachable. user-event's tab() doesn't know closed <details>
+    // content is skipped (it tries the link and focus stays put), so assert visibility instead.
+    await expect(one.details.querySelector('a')).not.toBeVisible();
 
-    await userEvent.keyboard('{Enter}');
+    await userEvent.click(two.summary);
     await expect(two.details).toHaveAttribute('open');
     await expect(one.details).not.toHaveAttribute('open');
     await userEvent.tab();
@@ -363,7 +356,6 @@ export const KeyboardAccordion: Story = {
 
 export const ResizePreservesSelectionAndFocus: Story = {
   name: 'Resize Preserves Selection & Focus',
-  tags: ['wip'],
   decorators: [container(NARROW)],
   play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(section(canvasElement, 'Two').summary);
@@ -439,5 +431,14 @@ export const WithHeader: Story = {
       canvas.getByRole('heading', { level: 2 }).compareDocumentPosition(first) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+  },
+};
+
+export const HeadingLevel: Story = {
+  args: { headingLevel: 4 },
+  decorators: [container(NARROW)],
+  play: async ({ canvas }) => {
+    await expect(canvas.getAllByRole('heading', { level: 4 })).toHaveLength(3);
+    await expect(canvas.queryByRole('heading', { level: 3 })).toBeNull();
   },
 };

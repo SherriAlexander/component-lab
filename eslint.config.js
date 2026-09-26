@@ -24,6 +24,26 @@ export default defineConfig(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      // strict preset drops recommended's tabpanel exception; APG wants the visible tabpanel focusable
+      'jsx-a11y/no-noninteractive-tabindex': [
+        'error',
+        { tags: [], roles: ['tabpanel'], allowExpressionValues: true },
+      ],
+      // strict preset bans numbers in template literals; they stringify predictably (e.g. ids from an index)
+      // (restate the rest: options replace the preset's, and the rule's own defaults are loose)
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        {
+          allowAny: false,
+          allowBoolean: false,
+          allowNever: false,
+          allowNullish: false,
+          allowNumber: true,
+          allowRegExp: false,
+        },
+      ],
+    },
   },
   {
     files: ['**/*.js'],

@@ -59,14 +59,16 @@ Follows the WAI-ARIA Authoring Practices [tabs](https://www.w3.org/WAI/ARIA/apg/
 - <kbd>←</kbd> / <kbd>→</kbd> move between tabs, wrapping. <kbd>Home</kbd> / <kbd>End</kbd> jump to
   the first and last.
 - `activation="automatic"` (default) selects as focus moves. `"manual"` waits for <kbd>Enter</kbd> or <kbd>Space</kbd>.
-- A panel gets `tabindex="0"` only when it has nothing focusable inside.
+- Every panel gets `tabindex="0"`, so <kbd>Tab</kbd> from a tab lands at the start of its panel
+  ([APG recommendation](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/examples/tabs-manual/)).
 - Inactive panels are `hidden` and `inert`, so their links can't take focus.
 
 **Accordion mode**
 
 - Native `<details>` / `<summary>`, with the title in a heading (`headingLevel`, default 3). The browser handles open state and <kbd>Enter</kbd> / <kbd>Space</kbd>, and keeps closed content out of reach.
-- <kbd>↑</kbd> / <kbd>↓</kbd> move between headers. <kbd>Home</kbd> / <kbd>End</kbd> jump to the
-  first and last.
+- <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> move between headers. No arrow keys: the [APG
+  accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/) only asks for
+  <kbd>Enter</kbd> / <kbd>Space</kbd> and <kbd>Tab</kbd>.
 
 **Both modes:** if the focused trigger disappears in a mode switch, focus moves to the new trigger for the same item.
 
