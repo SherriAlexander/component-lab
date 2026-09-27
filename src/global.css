@@ -1,0 +1,6 @@
+/* Page-level base styles. Imported once by .storybook/preview.tsx, never by components. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

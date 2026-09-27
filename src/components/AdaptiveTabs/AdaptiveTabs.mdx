@@ -79,14 +79,14 @@ The component has no motion code and no timers. It exposes state as attributes, 
 | Attribute    | Values                                                                          |
 | ------------ | ------------------------------------------------------------------------------- |
 | `data-scope` | `adaptive-tabs` (on every part, so selectors don't hit other components' parts) |
-| `data-part`  | `root`, `header`, `tablist`, `item`, `trigger`, `panel`                         |
+| `data-part`  | `root`, `header`, `tablist`, `item`, `trigger`, `panels`, `panel`               |
 | `data-mode`  | `tabs`, `accordion`                                                             |
 | `data-value` | the current item (root), or the item's own value (items, tabs panels)           |
 | `data-state` | `active`, `inactive` (tab panels)                                               |
 
 Accordion motion can also use `details[open]` and `::details-content`. Content, selection and focus always update immediately, and motion never delays them.
 
-Colors come from `--adaptive-tabs-*` role variables that fall back to the neutral token set. Change colors by setting the roles. For anything else (layout, shape, spacing, motion), write rules scoped under your composition's class, keyed off `data-scope` + `data-part` and state attributes:
+Colors come from `--adaptive-tabs-*` role variables that fall back to the neutral token set. Change colors by setting the roles:
 
 | Role                                                        | Default                                |
 | ----------------------------------------------------------- | -------------------------------------- |
@@ -95,3 +95,27 @@ Colors come from `--adaptive-tabs-*` role variables that fall back to the neutra
 | `--adaptive-tabs-border`                                    | `--neutral-border`                     |
 | `--adaptive-tabs-panel-bg` / `--adaptive-tabs-panel-fg`     | `--neutral-surface` / `--neutral-text` |
 | `--adaptive-tabs-focus`                                     | `--neutral-focus`                      |
+
+Spacing, borders and the focus ring have variables too. Block spacing is in `rem`, inline spacing in `px`:
+
+| Variable                              | Default         | Applies to              |
+| ------------------------------------- | --------------- | ----------------------- |
+| `--adaptive-tabs-trigger-padding`     | `0.875rem 24px` | Accordion headers       |
+| `--adaptive-tabs-panel-padding`       | `0.5rem 24px`   | Accordion panels        |
+| `--adaptive-tabs-tab-trigger-padding` | `1rem 24px`     | Tabs                    |
+| `--adaptive-tabs-tab-panel-padding`   | `1rem 24px`     | Tab panels              |
+| `--adaptive-tabs-border-width`        | `1px`           | Items, tabs, tab panels |
+| `--adaptive-tabs-focus-width`         | `2px`           | Focus ring              |
+| `--adaptive-tabs-focus-offset`        | `3px`           | Focus ring              |
+
+For anything else (layout, shape, motion), write rules scoped under your composition's class, keyed off `data-scope` + `data-part` and state attributes.
+
+Every component rule is `.adaptive-tabs :where(…)`, so its specificity is 0,1,0, states included. A composition rule scoped under a class and keyed off any attribute (0,2,0 or more) overrides it, whatever the load order:
+
+```css
+.adventure-hero [data-scope='adaptive-tabs'][aria-selected='true'] {
+  /* wins over the component's selected-tab rule */
+}
+```
+
+The one exception is the forced-colors rule for the selected tab, which stays at 0,3,0 on purpose. In forced colors a composition background would otherwise replace `SelectedItem`, and the selected tab would look like the others.
