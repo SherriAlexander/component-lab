@@ -96,7 +96,8 @@ export function AdaptiveTabs({
       const focused = document.activeElement;
       focusedTriggerValue.current =
         focused instanceof HTMLElement && el.contains(focused)
-          ? (focused.closest<HTMLElement>('[data-part="trigger"]')?.dataset.value ?? null)
+          ? (focused.closest<HTMLElement>('[data-scope="adaptive-tabs"][data-part="trigger"]')
+              ?.dataset.value ?? null)
           : null;
       setMode(next);
       if (next === 'tabs') {
@@ -118,7 +119,9 @@ export function AdaptiveTabs({
     if (!value) return;
     focusedTriggerValue.current = null;
     innerRef.current
-      ?.querySelector<HTMLElement>(`[data-part="trigger"][data-value="${CSS.escape(value)}"]`)
+      ?.querySelector<HTMLElement>(
+        `[data-scope="adaptive-tabs"][data-part="trigger"][data-value="${CSS.escape(value)}"]`,
+      )
       ?.focus();
   }, [mode]);
 
@@ -177,15 +180,26 @@ export function AdaptiveTabs({
 
   return (
     <AdaptiveTabsContext value={{ mode, value: currentValue }}>
-      <div className={allClassNames} data-part="root" data-mode={mode} data-value={currentValue}>
+      <div
+        className={allClassNames}
+        data-scope="adaptive-tabs"
+        data-part="root"
+        data-mode={mode}
+        data-value={currentValue}
+      >
         <div className="adaptive-tabs__inner" ref={innerRef}>
-          {header && <div data-part="header">{header}</div>}
+          {header && (
+            <div data-scope="adaptive-tabs" data-part="header">
+              {header}
+            </div>
+          )}
 
           {mode === 'accordion' && (
             <div className="adaptive-tabs__accordion-group">
               {items.map((item) => (
                 <details
                   key={item.value}
+                  data-scope="adaptive-tabs"
                   data-part="item"
                   data-value={item.value}
                   open={openItems.includes(item.value)}
@@ -193,17 +207,19 @@ export function AdaptiveTabs({
                     handleToggle(item.value, event.currentTarget.open);
                   }}
                 >
-                  <summary data-part="trigger" data-value={item.value}>
+                  <summary data-scope="adaptive-tabs" data-part="trigger" data-value={item.value}>
                     <Heading>{item.title}</Heading>
                   </summary>
-                  <div data-part="panel">{item.content}</div>
+                  <div data-scope="adaptive-tabs" data-part="panel">
+                    {item.content}
+                  </div>
                 </details>
               ))}
             </div>
           )}
           {mode === 'tabs' && (
             <>
-              <div data-part="tablist" role="tablist" aria-label={label}>
+              <div data-scope="adaptive-tabs" data-part="tablist" role="tablist" aria-label={label}>
                 {items.map((item, index) => {
                   const isSelected = item.value === activeTabValue;
                   return (
@@ -212,6 +228,7 @@ export function AdaptiveTabs({
                       ref={(el) => {
                         tabButtonRefs.current[index] = el;
                       }}
+                      data-scope="adaptive-tabs"
                       data-part="trigger"
                       data-value={item.value}
                       role="tab"
@@ -231,12 +248,13 @@ export function AdaptiveTabs({
                   );
                 })}
               </div>
-              <div className="adaptive-tabs__tabpanels">
+              <div data-scope="adaptive-tabs" data-part="panels">
                 {items.map((item, index) => {
                   const isSelected = item.value === activeTabValue;
                   return (
                     <div
                       key={item.value}
+                      data-scope="adaptive-tabs"
                       data-part="panel"
                       data-value={item.value}
                       data-state={isSelected ? 'active' : 'inactive'}

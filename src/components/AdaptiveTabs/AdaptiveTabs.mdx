@@ -76,16 +76,17 @@ Follows the WAI-ARIA Authoring Practices [tabs](https://www.w3.org/WAI/ARIA/apg/
 
 The component has no motion code and no timers. It exposes state as attributes, and all styling and animation is CSS keyed off them:
 
-| Attribute    | Values                                                                |
-| ------------ | --------------------------------------------------------------------- |
-| `data-part`  | `root`, `header`, `tablist`, `item`, `trigger`, `panel`               |
-| `data-mode`  | `tabs`, `accordion`                                                   |
-| `data-value` | the current item (root), or the item's own value (items, tabs panels) |
-| `data-state` | `active`, `inactive` (tab panels)                                     |
+| Attribute    | Values                                                                          |
+| ------------ | ------------------------------------------------------------------------------- |
+| `data-scope` | `adaptive-tabs` (on every part, so selectors don't hit other components' parts) |
+| `data-part`  | `root`, `header`, `tablist`, `item`, `trigger`, `panel`                         |
+| `data-mode`  | `tabs`, `accordion`                                                             |
+| `data-value` | the current item (root), or the item's own value (items, tabs panels)           |
+| `data-state` | `active`, `inactive` (tab panels)                                               |
 
 Accordion motion can also use `details[open]` and `::details-content`. Content, selection and focus always update immediately, and motion never delays them.
 
-Colors come from `--adaptive-tabs-*` role variables that fall back to the neutral token set. Change colors by setting the roles. For anything else (layout, shape, spacing, motion), write rules scoped under your composition's class, keyed off `data-part` and state attributes:
+Colors come from `--adaptive-tabs-*` role variables that fall back to the neutral token set. Change colors by setting the roles. For anything else (layout, shape, spacing, motion), write rules scoped under your composition's class, keyed off `data-scope` + `data-part` and state attributes:
 
 | Role                                                        | Default                                |
 | ----------------------------------------------------------- | -------------------------------------- |

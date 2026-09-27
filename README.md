@@ -30,7 +30,7 @@ Full props, keyboard support, and the styling contract are on the component's Do
 - **Switching modes keeps your place.** Several accordion sections can be open. In tabs mode, the most recently opened one is selected. Going back opens only that one. Focus follows to the same item's new trigger.
 - **Native where possible.** Accordion mode is `<details>` / `<summary>`, so the browser handles open state, <kbd>Enter</kbd> / <kbd>Space</kbd>, and hiding closed content. Tabs mode follows the WAI-ARIA tabs pattern: roving `tabindex`, arrow keys, automatic or manual activation. Inactive panels are `inert`.
 - **Uncontrolled only.** `defaultValue` + `onValueChange`. With several sections open, what a parent-set `value` means is ambiguous, so there's no controlled mode. `useAdaptiveTabs()` gives content inside the component the current `{ mode, value }`.
-- **No motion code.** The component exposes state as `data-*` attributes (`data-part`, `data-mode`, `data-value`, `data-state`). All styling and animation is CSS keyed off them. Content and focus update immediately, and motion never delays them.
+- **No motion code.** The component exposes state as `data-*` attributes (`data-scope` + `data-part`, `data-mode`, `data-value`, `data-state`). All styling and animation is CSS keyed off them. Content and focus update immediately, and motion never delays them.
 
 ## Stories
 
