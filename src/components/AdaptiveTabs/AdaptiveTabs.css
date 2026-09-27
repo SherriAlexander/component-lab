@@ -1,7 +1,137 @@
+/*
+  Colors:
+  --adaptive-tabs-trigger-bg // Inactive tab, closed header
+  --adaptive-tabs-trigger-fg // Inactive tab, closed header
+  --adaptive-tabs-trigger-active-bg // Selected tab, open header
+  --adaptive-tabs-trigger-active-fg // Selected tab, open header
+  --adaptive-tabs-border // Tabs, panel, items
+  --adaptive-tabs-panel-bg // Panel background
+  --adaptive-tabs-panel-fg // Panel text
+  --adaptive-tabs-focus // Tabs, summaries, tabpanels
+
+  Measurements (rem for block spacing, px for inline spacing):
+  --adaptive-tabs-trigger-padding
+  --adaptive-tabs-panel-padding
+  --adaptive-tabs-border-width
+  --adaptive-tabs-tab-trigger-padding
+  --adaptive-tabs-tab-panel-padding
+
+  Focus styles:
+  --adaptive-tabs-focus-width
+  --adaptive-tabs-focus-offset
+
+  Specificity: every part rule is `.adaptive-tabs :where(...)`, so 0,1,0 flat,
+  states included. Any composition rule with a class + one attribute (0,2,0)
+  overrides it regardless of load order; bare element rules (0,0,1) don't.
+  All part rules tie, so source order below matters: base, then states.
+*/
+
 .adaptive-tabs {
   container-type: inline-size;
+
+  /* Focus ring */
+  :where(:focus-visible) {
+    outline: var(--adaptive-tabs-focus-width, 2px) solid
+      var(--adaptive-tabs-focus, var(--neutral-focus));
+    outline-offset: var(--adaptive-tabs-focus-offset, 3px);
+  }
+
+  /* Focused parts to front */
+  :where(
+    [data-scope='adaptive-tabs']:is([data-part='trigger'], [data-part='panel']):focus-visible
+  ) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Items (accordion trigger/panel group) */
+  :where([data-scope='adaptive-tabs'][data-part='item']) {
+    border: var(--adaptive-tabs-border-width, 1px) solid
+      var(--adaptive-tabs-border, var(--neutral-border));
+
+    &:where(:not(:first-child)) {
+      margin-block-start: calc(var(--adaptive-tabs-border-width, 1px) * -1);
+    }
+  }
+
+  /* Accordion Triggers */
+  :where(summary[data-scope='adaptive-tabs'][data-part='trigger']) {
+    background: var(--adaptive-tabs-trigger-bg, var(--neutral-surface));
+    color: var(--adaptive-tabs-trigger-fg, var(--neutral-text));
+    padding: var(--adaptive-tabs-trigger-padding, 0.875rem 24px);
+    min-block-size: 2.75rem;
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+
+    :where([open]) > & {
+      background: var(--adaptive-tabs-trigger-active-bg, var(--neutral-text));
+      color: var(--adaptive-tabs-trigger-active-fg, var(--neutral-surface));
+    }
+
+    & :where(h2, h3, h4, h5, h6) {
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+      font-size: 1rem;
+      text-box: trim-end cap alphabetic;
+    }
+
+    &:where(:hover) :where(h2, h3, h4, h5, h6) {
+      text-decoration: underline;
+    }
+  }
+
+  /* Accordion Panels */
+  :where(details > [data-scope='adaptive-tabs'][data-part='panel']) {
+    padding: var(--adaptive-tabs-panel-padding, 0.5rem 24px);
+    background: var(--adaptive-tabs-panel-bg, var(--neutral-surface));
+    color: var(--adaptive-tabs-panel-fg, var(--neutral-text));
+  }
+
+  /* Tab Trigger */
+  :where([role='tab'][data-scope='adaptive-tabs'][data-part='trigger']) {
+    appearance: none;
+    font: inherit;
+    line-height: 1;
+    min-block-size: 2.75rem;
+    background: var(--adaptive-tabs-trigger-bg, var(--neutral-surface));
+    color: var(--adaptive-tabs-trigger-fg, var(--neutral-text));
+    padding: var(--adaptive-tabs-tab-trigger-padding, 1rem 24px);
+    border: var(--adaptive-tabs-border-width, 1px) solid
+      var(--adaptive-tabs-border, var(--neutral-border));
+    cursor: pointer;
+
+    &:where([aria-selected='true']) {
+      background: var(--adaptive-tabs-trigger-active-bg, var(--neutral-text));
+      color: var(--adaptive-tabs-trigger-active-fg, var(--neutral-surface));
+    }
+
+    &:where(:not(:first-child)) {
+      margin-inline-start: calc(var(--adaptive-tabs-border-width, 1px) * -1);
+    }
+
+    &:where(:hover) {
+      text-decoration: underline;
+    }
+  }
+
+  /* Tab panel wrapper */
+  :where([data-scope='adaptive-tabs'][data-part='panels']) {
+    border: var(--adaptive-tabs-border-width, 1px) solid
+      var(--adaptive-tabs-border, var(--neutral-border));
+    margin-block-start: calc(var(--adaptive-tabs-border-width, 1px) * -1);
+  }
+
+  /* Tab Panel */
+  :where([data-scope='adaptive-tabs'][data-part='panel'][role='tabpanel']) {
+    padding: var(--adaptive-tabs-tab-panel-padding, 1rem 24px);
+    background: var(--adaptive-tabs-panel-bg, var(--neutral-surface));
+    color: var(--adaptive-tabs-panel-fg, var(--neutral-text));
+  }
 }
 
+/* Mode switching for JS to hook into */
 .adaptive-tabs__inner {
   --adaptive-tabs-mode: accordion;
 }
@@ -9,5 +139,17 @@
 @container (min-width: 40rem) {
   .adaptive-tabs__inner {
     --adaptive-tabs-mode: tabs;
+  }
+}
+
+/*
+  High Contrast Mode. Deliberately NOT in :where() (0,3,0): forced colors
+  replaces author backgrounds with system colors, so if a composition's
+  selected-tab background won here, the selected tab would look like the rest.
+*/
+@media (forced-colors: active) {
+  [data-scope='adaptive-tabs'][data-part='trigger'][aria-selected='true'] {
+    background: SelectedItem;
+    color: SelectedItemText;
   }
 }

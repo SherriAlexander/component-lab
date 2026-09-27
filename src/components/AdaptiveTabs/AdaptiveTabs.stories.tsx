@@ -161,11 +161,13 @@ export const TabsMode: Story = {
     await expect(one).toHaveAttribute('aria-controls', panel.id);
 
     // State → motion contract
-    const root = canvasElement.querySelector('[data-part="root"]');
+    const root = canvasElement.querySelector('[data-scope="adaptive-tabs"][data-part="root"]');
     await expect(root).toHaveAttribute('data-mode', 'tabs');
     await expect(root).toHaveAttribute('data-value', 'one');
     await expect(tablist).toBeVisible();
-    const panels = canvasElement.querySelectorAll('[data-part="panel"]');
+    const panels = canvasElement.querySelectorAll(
+      '[data-scope="adaptive-tabs"][data-part="panel"]',
+    );
     await expect(panels).toHaveLength(3);
     for (const p of panels) {
       const active = p.getAttribute('data-value') === 'one';
@@ -182,10 +184,9 @@ export const AccordionMode: Story = {
   decorators: [container(NARROW)],
   play: async ({ canvas, canvasElement, userEvent, args }) => {
     await expect(canvas.queryByRole('tablist')).toBeNull();
-    await expect(canvasElement.querySelector('[data-part="root"]')).toHaveAttribute(
-      'data-mode',
-      'accordion',
-    );
+    await expect(
+      canvasElement.querySelector('[data-scope="adaptive-tabs"][data-part="root"]'),
+    ).toHaveAttribute('data-mode', 'accordion');
 
     // Headers: <details><summary><h3>
     await expect(canvas.getAllByRole('heading', { level: 3 })).toHaveLength(3);
@@ -413,7 +414,7 @@ export const WithHeader: Story = {
   args: { header: <h2>Section heading</h2> },
   decorators: [container(WIDE)],
   play: async ({ canvas, canvasElement }) => {
-    const root = canvasElement.querySelector('[data-part="root"]');
+    const root = canvasElement.querySelector('[data-scope="adaptive-tabs"][data-part="root"]');
     const heading = canvas.getByRole('heading', { level: 2, name: 'Section heading' });
     await expect(root).toContainElement(heading);
 
