@@ -18,11 +18,13 @@ const items = tabs.map((tab) => ({
   content: (
     <div className="adventure-hero__panel">
       <div className="adventure-hero__copy">
-        <PanelHeading>{tab.heading}</PanelHeading>
-        <p>{tab.body}</p>
-        <a className="adventure-hero__cta" href={tab.cta.href}>
-          {tab.cta.label} <ArrowForward />
-        </a>
+        <div className="adventure-hero__text-move">
+          <PanelHeading>{tab.heading}</PanelHeading>
+          <p>{tab.body}</p>
+          <a className="adventure-hero__cta" href={tab.cta.href}>
+            {tab.cta.label} <ArrowForward />
+          </a>
+        </div>
       </div>
       <img
         className="adventure-hero__photo"
@@ -51,7 +53,9 @@ const AdventureHero = ({ defaultValue }: { defaultValue: AdventureValue }) => (
 
 const page: Decorator = (Story) => (
   <div className="adventure-page">
-    <Story />
+    <div className="wrapper">
+      <Story />
+    </div>
   </div>
 );
 

@@ -2,11 +2,36 @@
 
 /* Page decorator: dark background + gutters */
 .adventure-page {
+  /* TODO: add to tokens? */
+
+  /* missing colors */
+  --color-blue-900: #012538;
+
+  /* Adventure page CSS variables */
+  --adv-experience-accent-start: var(--accent-blue-start);
+  --adv-experience-accent-end: var(--accent-blue-end);
+  --adv-experience-accent-on: var(--accent-blue-on);
+  --adv-experience-border: var(--color-blue-900);
+  --adv-inspire-accent-start: var(--accent-plum-start);
+  --adv-inspire-accent-end: var(--accent-plum-end);
+  --adv-inspire-accent-on: var(--accent-plum-on);
+  --adv-explore-accent-start: var(--accent-green-start);
+  --adv-explore-accent-end: var(--accent-green-end);
+  --adv-explore-accent-on: var(--accent-green-on);
+  --adv-connect-accent-start: var(--accent-orange-start);
+  --adv-connect-accent-end: var(--accent-orange-end);
+  --adv-connect-accent-on: var(--accent-orange-on);
+
+  /* Page styles */
   min-height: 100vh;
-  padding: var(--space-4);
   color: var(--color-white);
   background: var(--color-black);
   font-family: var(--font-family-body);
+  padding-inline: var(--page-gutter-mobile);
+
+  @media (width >= 75em) {
+    padding-inline: var(--page-gutter);
+  }
 }
 
 .adventure-side-by-side {
@@ -29,41 +54,195 @@
   }
 }
 
-/* Current value → accent set. Root reflects the current value; accordion items their own. */
-.adventure-hero[data-value='experience'],
-.adventure-hero [data-scope='adaptive-tabs'][data-part='item'][data-value='experience'] {
-  --accent-start: var(--accent-blue-start);
-  --accent-end: var(--accent-blue-end);
-  --on-accent: var(--accent-blue-on);
+/* Theming */
+
+@media (width < 75em) {
+  .adventure-hero [data-scope='adaptive-tabs'][data-part='item'][data-value='experience'] {
+    --accent-start: var(--adv-experience-accent-start);
+    --accent-end: var(--adv-experience-accent-end);
+    --on-accent: var(--adv-experience-accent-on);
+  }
+
+  .adventure-hero [data-scope='adaptive-tabs'][data-part='item'][data-value='inspire'] {
+    --accent-start: var(--adv-inspire-accent-start);
+    --accent-end: var(--adv-inspire-accent-end);
+    --on-accent: var(--adv-inspire-accent-on);
+  }
+
+  .adventure-hero [data-scope='adaptive-tabs'][data-part='item'][data-value='explore'] {
+    --accent-start: var(--adv-explore-accent-start);
+    --accent-end: var(--adv-explore-accent-end);
+    --on-accent: var(--adv-explore-accent-on);
+  }
+
+  .adventure-hero [data-scope='adaptive-tabs'][data-part='item'][data-value='connect'] {
+    --accent-start: var(--adv-connect-accent-start);
+    --accent-end: var(--adv-connect-accent-end);
+    --on-accent: var(--adv-connect-accent-on);
+  }
 }
 
-.adventure-hero[data-value='inspire'],
-.adventure-hero [data-scope='adaptive-tabs'][data-part='item'][data-value='inspire'] {
-  --accent-start: var(--accent-plum-start);
-  --accent-end: var(--accent-plum-end);
-  --on-accent: var(--accent-plum-on);
+@media (width >= 75em) {
+  .adventure-hero[data-value='experience'] {
+    --accent-start: var(--adv-experience-accent-start);
+    --accent-end: var(--adv-experience-accent-end);
+    --on-accent: var(--adv-experience-accent-on);
+  }
+
+  .adventure-hero[data-value='inspire'] {
+    --accent-start: var(--adv-inspire-accent-start);
+    --accent-end: var(--adv-inspire-accent-end);
+    --on-accent: var(--adv-inspire-accent-on);
+  }
+
+  .adventure-hero[data-value='explore'] {
+    --accent-start: var(--adv-explore-accent-start);
+    --accent-end: var(--adv-explore-accent-end);
+    --on-accent: var(--adv-explore-accent-on);
+  }
+
+  .adventure-hero[data-value='connect'] {
+    --accent-start: var(--adv-connect-accent-start);
+    --accent-end: var(--adv-connect-accent-end);
+    --on-accent: var(--adv-connect-accent-on);
+  }
 }
 
-.adventure-hero[data-value='explore'],
-.adventure-hero [data-scope='adaptive-tabs'][data-part='item'][data-value='explore'] {
-  --accent-start: var(--accent-green-start);
-  --accent-end: var(--accent-green-end);
-  --on-accent: var(--accent-green-on);
-}
-
-.adventure-hero[data-value='connect'],
-.adventure-hero [data-scope='adaptive-tabs'][data-part='item'][data-value='connect'] {
-  --accent-start: var(--accent-orange-start);
-  --accent-end: var(--accent-orange-end);
-  --on-accent: var(--accent-orange-on);
-}
-
-/* Component roles → current accent */
 .adventure-hero {
   --adaptive-tabs-trigger-active-bg: transparent;
   --adaptive-tabs-trigger-active-fg: var(--on-accent);
-  --adaptive-tabs-border: var(--accent-start);
+  --adaptive-tabs-trigger-border: var(--on-accent);
   --adaptive-tabs-panel-bg: linear-gradient(var(--accent-start), var(--accent-end));
   --adaptive-tabs-panel-fg: var(--on-accent);
   --adaptive-tabs-focus: var(--on-accent);
+
+  /* Theming overrides for accordion only */
+  & [data-scope='adaptive-tabs'][data-part='item'][open] {
+    --adaptive-tabs-trigger-active-bg: var(--accent-end);
+    --adaptive-tabs-trigger-active-border: var(--accent-start);
+  }
+
+  &[data-part='root'] {
+    position: relative;
+
+    @media (width >= 75em) {
+      overflow: hidden;
+      margin-inline: calc(var(--page-gutter) * -1);
+    }
+  }
+
+  .adaptive-tabs__accordion-group {
+    position: relative;
+    margin-top: var(--vspace-mobile);
+    margin-inline: calc(var(--page-gutter-mobile) * -1);
+  }
+
+  /* Shared trigger styles */
+  [data-scope='adaptive-tabs'][data-part='trigger'] {
+    /* display: block; */
+    position: relative;
+    text-align: center;
+    font-family: var(--font-family-heading);
+    font-size: var(--18px);
+    text-transform: uppercase;
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-easing-in-out-cubic),
+      color var(--motion-duration-fast) var(--motion-easing-in-out-cubic);
+  }
+
+  /* Shared panel styles */
+  [data-scope='adaptive-tabs'][data-part='panel'] {
+    &::before,
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+    }
+  }
+
+  /* Items (accordion trigger/panel group) */
+  [data-scope='adaptive-tabs'][data-part='item'] {
+    border: none;
+    margin-block-start: var(--7px);
+  }
+
+  /* Accordion-specific trigger styles */
+  summary[data-scope='adaptive-tabs'][data-part='trigger'] {
+    border-block: 3px solid;
+    border-color: var(--adaptive-tabs-trigger-border);
+
+    /*
+    padding:calcRem($rhythm-unit) 50px;
+    */
+
+    /* Hide the default marker */
+    &::marker {
+      content: '';
+    }
+
+    /* Add a new marker */
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 50%;
+      right: 22px;
+      margin-top: -12px;
+      width: 24px;
+      height: 24px;
+      background-color: var(--neutral-text);
+    }
+
+    & :is(h2, h3, h4, h5, h6) {
+      font-size: var(--18px);
+    }
+  }
+
+  /* Open accordion header */
+  [open] > summary[data-scope='adaptive-tabs'][data-part='trigger'] {
+    border-color: var(--adaptive-tabs-trigger-active-border);
+
+    &::after {
+      display: none;
+    }
+  }
+
+  /* Open accordion panel */
+
+  [open] > [data-scope='adaptive-tabs'][data-part='panel']::after {
+    top: 0;
+    left: 50%;
+    margin-left: -19px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 19px 19px 0;
+    border-color: var(--adaptive-tabs-trigger-active-border) transparent transparent;
+  }
+
+  /* Accordion Panels */
+  details > [data-scope='adaptive-tabs'][data-part='panel'] {
+    position: relative;
+    overflow: hidden;
+  }
+
+  details .adventure-hero__photo {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+  }
+}
+
+/*
+transition-default: var(--motion-duration-fast) var(--motion-easing-in-out-cubic)
+
+*/
+
+.adventure-hero__copy {
+  padding: 40px 20px 80px;
+}
+
+details .adventure-hero__copy {
+  position: relative;
+  z-index: 1;
 }

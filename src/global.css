@@ -1,6 +1,122 @@
-/* Page-level base styles. Imported once by .storybook/preview.tsx, never by components. */
+/* Design-system-wide base styles. Imported once by .storybook/preview.tsx, never by components. */
+
+/* Media queries:
+
+lap-start (640): @media (width >= 40em)
+desk-start (900): @media (width >= 56.25em)
+desk-wide-start (1200): @media (width >= 75em)
+max-content-width-start (1360): @media (width >= 85em)
+
+*/
+
+/* TODO: Move to tokens? */
+:root {
+  /* Variables to make rems easier */
+  --7px: 0.4375rem;
+  --14px: 0.875rem;
+  --16px: 1rem;
+  --18px: 1.125rem;
+  --20px: 1.25rem;
+  --22px: 1.375rem;
+  --26px: 1.625rem;
+  --30px: 1.875rem;
+  --40px: 2.5rem;
+
+  /* Typography */
+  --base-line-height: 30;
+  --base-font-size: 16;
+
+  /* --rhythm-unit: calc(var(--base-line-height) / 2); */
+
+  /* Multipliers for vertical padding on components */
+  --multiplier-mobile: 2;
+  --multiplier-lap: 3;
+  --multiplier-desk: 3;
+
+  /* Vertical space variables based on the above (in rem) */
+  --vspace-mobile: calc(var(--base-line-height) / 2 * var(--multiplier-mobile) / 16 * 1rem);
+  --vspace-lap: calc(var(--base-line-height) / 2 * var(--multiplier-lap) / 16 * 1rem);
+  --vspace-desk: calc(var(--base-line-height) / 2 * var(--multiplier-desk) / 16 * 1rem);
+
+  /* Page gutters in pixels (for calculations) */
+  --page-gutter-pixels: 50;
+  --page-gutter-pixels-mobile: 20;
+
+  /* Page gutters */
+  --page-gutter: calc(var(--page-gutter-pixels) * 1px);
+  --page-gutter-mobile: calc(var(--page-gutter-pixels-mobile) * 1px);
+
+  /* Max widths */
+  --max-width-content: 1260px;
+}
+
+* {
+  margin-block-end: 0;
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+  line-height: calc(var(--base-line-height) / var(--base-font-size));
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures contextual;
+  font-feature-settings: 'kern', 'liga', 'clig', 'calt';
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  -o-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  padding-inline: var(--page-gutter-mobile);
+
+  @media (width >= 75em) {
+    padding-inline: var(--page-gutter);
+  }
+}
+
+h2,
+h3 {
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: var(--30px);
+  font-family: var(--font-family-heading);
+  text-transform: uppercase;
+
+  @media (width >= 75em) {
+    font-size: var(--40px);
+  }
+}
+
+h3 {
+  font-size: var(--22px);
+
+  @media (width >= 75em) {
+    font-size: var(--26px);
+  }
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.wrapper {
+  padding-top: 20px;
+  padding-bottom: 20px;
+
+  @media (width >= 85em) {
+    max-width: var(--max-width-content);
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

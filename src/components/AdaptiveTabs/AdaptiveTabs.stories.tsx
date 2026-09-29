@@ -59,6 +59,14 @@ const items: AdaptiveTabsItem[] = [
 const meta = {
   title: 'Components/AdaptiveTabs',
   component: AdaptiveTabs,
+  // Limits max page width. Meta decorators wrap each story's own decorators.
+  decorators: [
+    (Story) => (
+      <div className="wrapper">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     label: 'Placeholder tabs',
     defaultValue: 'one',

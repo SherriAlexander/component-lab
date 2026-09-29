@@ -64,11 +64,6 @@
     line-height: 1;
     cursor: pointer;
 
-    :where([open]) > & {
-      background: var(--adaptive-tabs-trigger-active-bg, var(--neutral-text));
-      color: var(--adaptive-tabs-trigger-active-fg, var(--neutral-surface));
-    }
-
     & :where(h2, h3, h4, h5, h6) {
       display: inline-block;
       margin: 0;
@@ -80,6 +75,11 @@
     &:where(:hover) :where(h2, h3, h4, h5, h6) {
       text-decoration: underline;
     }
+  }
+
+  :where([open] > summary[data-scope='adaptive-tabs'][data-part='trigger']) {
+    background: var(--adaptive-tabs-trigger-active-bg, var(--neutral-text));
+    color: var(--adaptive-tabs-trigger-active-fg, var(--neutral-surface));
   }
 
   /* Accordion Panels */
