@@ -73,7 +73,7 @@ Pushes to `main` then also run Chromatic visual tests and deploy the built Story
 ## Branches
 
 - `dev` is the integration branch. Feature branches come off `dev`, and PRs merge back into `dev`.
-- `main` is the published branch. `dev` merges into `main` (regular merge commit, not squash) when a snapshot run and deploy are wanted.
+- `main` is the published branch. `dev` merges into `main` (regular merge commit, not squash) when a snapshot run and deploy are wanted. Both branches are protected: changes land only through PRs, with no force-pushes or deletion.
 
 ## Credits
 
