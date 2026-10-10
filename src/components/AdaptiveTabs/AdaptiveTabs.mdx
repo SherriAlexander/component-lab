@@ -113,7 +113,7 @@ For anything else (layout, shape, motion), write rules scoped under your composi
 Every component rule is `.adaptive-tabs :where(…)`, so its specificity is 0,1,0, states included. A composition rule scoped under a class and keyed off any attribute (0,2,0 or more) overrides it, whatever the load order:
 
 ```css
-.adventure-hero [data-scope='adaptive-tabs'][aria-selected='true'] {
+.my-composition [data-scope='adaptive-tabs'][aria-selected='true'] {
   /* wins over the component's selected-tab rule */
 }
 ```

@@ -1,6 +1,6 @@
 # Sherri Alexander · Component Lab
 
-A small Storybook showing `AdaptiveTabs`: an accessible React + TypeScript primitive that switches between tabs and an accordion based on its **container** width, plus a branded "Plan Your Adventure" hero built on it.
+A small Storybook showing `AdaptiveTabs`: an accessible React + TypeScript primitive that switches between tabs and an accordion based on its **container** width.
 
 Rebuilt from my [2018 CodePen original](https://codepen.io/SherriAlexander/pen/GwpZjv).
 
@@ -35,7 +35,6 @@ Full props, keyboard support, and the styling contract are on the component's Do
 ## Stories
 
 - **Components / AdaptiveTabs** — the neutral primitive, with docs, a live mode/value readout, and one story per behavior (keyboard in both modes, manual activation, resizing).
-- **Compositions / Hero / Plan Your Adventure** — the branded hero, one story per tab, plus several containers side by side to show every breakpoint at once.
 - **Foundations / Tokens** — the palette, and each accent with its measured contrast.
 
 ## Local development
@@ -57,7 +56,7 @@ Git hooks: pre-commit formats and lints staged files; pre-push runs typecheck an
 
 ## Design tokens
 
-W3C DTCG JSON in `tokens/`: primitives, plus semantic sets that reference them (a `neutral` base skin and per-hue accents). Style Dictionary builds them into CSS custom properties and a resolved JSON file, both generated and not committed. The component reads only its own `--adaptive-tabs-*` role variables (trigger, active trigger, border, panel, focus), which fall back to the neutral set. The hero recolors it by pointing those roles at the current accent, and adds its own rules, scoped under the hero class, for layout, shape, and motion. Component rules are `.adaptive-tabs :where(…)` (specificity 0,1,0), so those hero rules win without matching the component's selectors.
+W3C DTCG JSON in `tokens/`: primitives, plus semantic sets that reference them (a `neutral` base skin and per-hue accents). Style Dictionary builds them into CSS custom properties and a resolved JSON file, both generated and not committed. The component reads only its own `--adaptive-tabs-*` role variables (trigger, active trigger, border, panel, focus), which fall back to the neutral set. A composition can recolor it by pointing those roles at an accent, and add its own rules, scoped under its own class, for layout, shape, and motion. Component rules are `.adaptive-tabs :where(…)` (specificity 0,1,0), so those composition rules win without matching the component's selectors.
 
 White text must reach 4.5:1 against both stops of every accent gradient. Neutral text needs 4.5:1 and borders and focus rings need 3:1 on both neutral surfaces. A unit test checks all of this on every `npm test`. The original's light blue and green ends failed that, so they're darker here. Its yellow failed at both ends, so it's now burnt orange.
 
@@ -78,11 +77,4 @@ Pushes to `main` then also run Chromatic visual tests and deploy the built Story
 
 ## Credits
 
-Photos from [Unsplash](https://unsplash.com/license), served via [Lorem Picsum](https://picsum.photos):
-
-- Experience: [Abigail Keenan](https://unsplash.com/photos/8jqna7aA-vs)
-- Inspire: [Stefanus Martanto Setyo Husodo](https://unsplash.com/photos/GKR1tBkmW3M)
-- Explore: [Andrew Ridley](https://unsplash.com/photos/Kt5hRENuotI)
-- Connect: [Dmitry Sytnik](https://unsplash.com/photos/bW2vHKCxbx4)
-
-Fonts: Oswald and Montserrat (SIL Open Font License), self-hosted via Fontsource. Icons: Material Icons (Apache 2.0).
+Fonts: Oswald and Montserrat (SIL Open Font License), self-hosted via Fontsource.

@@ -7,7 +7,16 @@ import { Meta } from '@storybook/addon-docs/blocks';
 `AdaptiveTabs` is an accessible React primitive that switches between tabs and an accordion based on its **container** width, not the viewport.
 
 - **Components / AdaptiveTabs** — the neutral primitive a library would ship.
-- **Compositions / Hero** — the branded "Plan Your Adventure" hero built on it.
 - **Foundations / Tokens** — the primitive → semantic → component token layers.
 
-Rebuilt from a [2018 CodePen original](https://codepen.io/SherriAlexander/pen/GwpZjv).
+## Accessibility
+
+- **One mode in the DOM at a time.** Assistive tech never finds duplicate or hidden triggers.
+- **Tabs follow the WAI-ARIA pattern.** Roving `tabindex`, arrow keys with wrapping, <kbd>Home</kbd> / <kbd>End</kbd>, and automatic or manual activation. Inactive panels are `inert`.
+- **The accordion is native.** `<details>` / `<summary>`, with each title in a real heading at a configurable level (`headingLevel`).
+- **Focus survives a mode change.** When the container resizes, focus moves to the same item's trigger in the new mode.
+- **Contrast is tested, not eyeballed.** A unit test checks every token pairing against WCAG: 4.5:1 for text, 3:1 for borders and focus rings.
+- **Forced colors are handled.** The selected tab stays distinct in Windows High Contrast.
+- **Every story is an a11y test.** Each one runs an axe check in headless Chromium, and any violation fails CI.
+
+{/* Rebuilt from a [2018 CodePen original](https://codepen.io/SherriAlexander/pen/GwpZjv). */}

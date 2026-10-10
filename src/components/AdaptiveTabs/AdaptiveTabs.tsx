@@ -210,7 +210,7 @@ export function AdaptiveTabs({
                   <summary data-scope="adaptive-tabs" data-part="trigger" data-value={item.value}>
                     <Heading>{item.title}</Heading>
                   </summary>
-                  <div data-scope="adaptive-tabs" data-part="panel">
+                  <div data-scope="adaptive-tabs" data-part="panel" data-value={item.value}>
                     {item.content}
                   </div>
                 </details>

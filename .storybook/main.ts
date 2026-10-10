@@ -1,7 +1,12 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.mdx', '../src/**/*.stories.@(ts|tsx)'],
+  // TODO: restore '../src/**/*.stories.@(ts|tsx)' once the hero is ready to publish
+  stories: [
+    '../src/**/*.mdx',
+    '../src/*.stories.@(ts|tsx)',
+    '../src/components/**/*.stories.@(ts|tsx)',
+  ],
   addons: [
     '@chromatic-com/storybook',
     '@storybook/addon-vitest',
