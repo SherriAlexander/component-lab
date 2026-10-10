@@ -1,0 +1,121 @@
+import { ArgTypes, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as Stories from './AdaptiveTabs.stories';
+
+<Meta of={Stories} />
+
+# AdaptiveTabs
+
+Tabs when its **container** is wide, an accordion when it's narrow. It checks the width of the box it sits in, not the viewport, so the same component can be tabs in a main column and an accordion in a sidebar on the same page.
+
+<Canvas of={Stories.Readout} />
+
+```tsx
+<AdaptiveTabs
+  label="Plan your adventure"
+  defaultValue="experience"
+  onValueChange={(value) => console.log(value)}
+  items={[
+    { value: 'experience', title: 'Experience', content: <ExperiencePanel /> },
+    { value: 'inspire', title: 'Inspire', content: <InspirePanel /> },
+  ]}
+/>
+```
+
+<ArgTypes of={Stories} />
+
+## Modes
+
+The root is a size container (`container-type: inline-size`). CSS decides the mode and JavaScript only reads it:
+
+```css
+.adaptive-tabs__inner {
+  --adaptive-tabs-mode: accordion;
+}
+@container (min-width: 40rem) {
+  .adaptive-tabs__inner {
+    --adaptive-tabs-mode: tabs;
+  }
+}
+```
+
+A `ResizeObserver` reads `--adaptive-tabs-mode` and renders only that mode's DOM, so there are no hidden duplicate triggers. The first read happens before paint, so the wrong mode never flashes. To change the breakpoint, set `--adaptive-tabs-mode` in your own `@container` rules. The component never sees a pixel width.
+
+## State
+
+- **Accordion:** sections open and close independently, and several can be open. `value` is the most recently opened section that is still open, or `null` when all are closed.
+- **Tabs:** always one selected tab. If nothing is open, the selected tab falls back to the last one opened, then to the first.
+- **Switching modes** keeps your place. Accordion → tabs selects `value`. Tabs → accordion opens only that section. Resizing never reopens a section you closed.
+- **Uncontrolled only:** `defaultValue` + `onValueChange`. With several sections open, what a parent-set `value` should mean is ambiguous, so there is no controlled `value` prop.
+- `useAdaptiveTabs()` returns `{ mode, value }` to any content inside, e.g. to adjust heading levels.
+
+## Accessibility
+
+Follows the WAI-ARIA Authoring Practices [tabs](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/) and [accordion](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/) patterns.
+
+**Tabs mode**
+
+- `tablist` named by `label`, `tab` with `aria-selected` and `aria-controls`, `tabpanel` named by its tab.
+- Roving `tabindex`: only the selected tab is in the Tab sequence.
+- <kbd>←</kbd> / <kbd>→</kbd> move between tabs, wrapping. <kbd>Home</kbd> / <kbd>End</kbd> jump to
+  the first and last.
+- `activation="automatic"` (default) selects as focus moves. `"manual"` waits for <kbd>Enter</kbd> or <kbd>Space</kbd>.
+- Every panel gets `tabindex="0"`, so <kbd>Tab</kbd> from a tab lands at the start of its panel
+  ([APG recommendation](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/examples/tabs-manual/)).
+- Inactive panels are `hidden` and `inert`, so their links can't take focus.
+
+**Accordion mode**
+
+- Native `<details>` / `<summary>`, with the title in a heading (`headingLevel`, default 3). The browser handles open state and <kbd>Enter</kbd> / <kbd>Space</kbd>, and keeps closed content out of reach.
+- <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> move between headers. No arrow keys: the [APG
+  accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/) only asks for
+  <kbd>Enter</kbd> / <kbd>Space</kbd> and <kbd>Tab</kbd>.
+
+**Both modes:** if the focused trigger disappears in a mode switch, focus moves to the new trigger for the same item.
+
+## Styling and motion
+
+The component has no motion code and no timers. It exposes state as attributes, and all styling and animation is CSS keyed off them:
+
+| Attribute    | Values                                                                          |
+| ------------ | ------------------------------------------------------------------------------- |
+| `data-scope` | `adaptive-tabs` (on every part, so selectors don't hit other components' parts) |
+| `data-part`  | `root`, `header`, `tablist`, `item`, `trigger`, `panels`, `panel`               |
+| `data-mode`  | `tabs`, `accordion`                                                             |
+| `data-value` | the current item (root), or the item's own value (items, tabs panels)           |
+| `data-state` | `active`, `inactive` (tab panels)                                               |
+
+Accordion motion can also use `details[open]` and `::details-content`. Content, selection and focus always update immediately, and motion never delays them.
+
+Colors come from `--adaptive-tabs-*` role variables that fall back to the neutral token set. Change colors by setting the roles:
+
+| Role                                                        | Default                                |
+| ----------------------------------------------------------- | -------------------------------------- |
+| `--adaptive-tabs-trigger-bg` / `--adaptive-tabs-trigger-fg` | `--neutral-surface` / `--neutral-text` |
+| `--adaptive-tabs-trigger-active-bg` / `-trigger-active-fg`  | `--neutral-text` / `--neutral-surface` |
+| `--adaptive-tabs-border`                                    | `--neutral-border`                     |
+| `--adaptive-tabs-panel-bg` / `--adaptive-tabs-panel-fg`     | `--neutral-surface` / `--neutral-text` |
+| `--adaptive-tabs-focus`                                     | `--neutral-focus`                      |
+
+Spacing, borders and the focus ring have variables too. Block spacing is in `rem`, inline spacing in `px`:
+
+| Variable                              | Default         | Applies to              |
+| ------------------------------------- | --------------- | ----------------------- |
+| `--adaptive-tabs-trigger-padding`     | `0.875rem 24px` | Accordion headers       |
+| `--adaptive-tabs-panel-padding`       | `0.5rem 24px`   | Accordion panels        |
+| `--adaptive-tabs-tab-trigger-padding` | `1rem 24px`     | Tabs                    |
+| `--adaptive-tabs-tab-panel-padding`   | `1rem 24px`     | Tab panels              |
+| `--adaptive-tabs-border-width`        | `1px`           | Items, tabs, tab panels |
+| `--adaptive-tabs-focus-width`         | `2px`           | Focus ring              |
+| `--adaptive-tabs-focus-offset`        | `3px`           | Focus ring              |
+
+For anything else (layout, shape, motion), write rules scoped under your composition's class, keyed off `data-scope` + `data-part` and state attributes.
+
+Every component rule is `.adaptive-tabs :where(…)`, so its specificity is 0,1,0, states included. A composition rule scoped under a class and keyed off any attribute (0,2,0 or more) overrides it, whatever the load order:
+
+```css
+.my-composition [data-scope='adaptive-tabs'][aria-selected='true'] {
+  /* wins over the component's selected-tab rule */
+}
+```
+
+The one exception is the forced-colors rule for the selected tab, which stays at 0,3,0 on purpose. In forced colors a composition background would otherwise replace `SelectedItem`, and the selected tab would look like the others.

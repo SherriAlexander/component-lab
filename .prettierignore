@@ -3,4 +3,5 @@ storybook-static
 coverage
 original-codepen
 package-lock.json
-src/tokens.css
+src/tokens/tokens.css
+src/tokens/tokens.json
